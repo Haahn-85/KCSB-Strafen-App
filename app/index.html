@@ -206,6 +206,30 @@ details summary{min-height:44px;display:flex;align-items:center;color:var(--leis
 .kopfbtn{width:100%;height:46px;font-family:var(--anzeige);font-size:18px;padding:0 8px;text-decoration:underline;text-decoration-color:var(--kachel-rand);text-underline-offset:4px}
 .zettel .fbz td{color:var(--gruen)}
 .zettel .klar td{font-family:var(--lauf);font-size:14px;letter-spacing:0}
+
+/* Tablet quer */
+.quer{flex:1;display:flex;min-height:0}
+.quer .main{min-width:0}
+.rail{width:320px;flex:none;display:flex;flex-direction:column;border-left:1px solid var(--linie);background:var(--flaeche)}
+.rail-in{flex:1;overflow-y:auto;padding:0 16px 16px;min-height:0}
+.rail .akt{background:var(--flaeche)}
+.seg2{display:flex;border:1px solid var(--kachel-rand);border-radius:12px;overflow:hidden;flex:none}
+.seg2 button{min-height:46px;padding:0 16px;font-weight:600;color:var(--leise)}
+.seg2 button[aria-pressed="true"]{background:var(--flaeche2);color:var(--text)}
+.zettel.tipp{width:100%;table-layout:fixed}
+.zettel.tipp th,.zettel.tipp td{min-width:0}
+.zettel.tipp .ecke{width:128px}
+.zettel.tipp tbody th{white-space:normal}
+.zettel.tipp .kopfbtn{padding:0 2px;overflow:hidden;text-overflow:ellipsis}
+.zettel.tipp tbody td{padding:0}
+.zettel.tipp .klar td{white-space:normal}
+.z{display:block;width:100%;min-height:48px;padding:6px 8px}
+.z:active{background:var(--linie)}
+.tk{display:grid;grid-template-columns:minmax(240px,1fr) 2fr;gap:16px}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pg .kachel{min-height:72px}
+.vg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kachel.an,.vt.an{border-color:var(--rot);background:var(--rot-tief)}
 </style>
 </head>
 <body>
@@ -225,7 +249,7 @@ const kurz=c=>c%100?(c/100).toFixed(2).replace('.',','):String(c/100);
 let n=0,tt=null,lpT=null,lp=false,hist=0,histOk=true,drag=null,S;
 
 // Format sv-SE ist JJJJ-MM-TT in Ortszeit
-function leer(){return {datum:new Date().toLocaleDateString('sv-SE'),view:'strafen',people:[...M],gaeste:new Set(),present:new Set(),deckel:new Set(),ev:[],runde:{drink:'',zahlt:null},runden:[],drinks:['Korn','Ouzo','Sambuca','Jägermeister','Berliner Luft'],fb:false,essen:{},closed:false,sheet:null,sticky:false,letzte:null,ov:null,toast:null,fokus:false,neu:null,kopiert:null,kopierFehler:null}}
+function leer(){return {datum:new Date().toLocaleDateString('sv-SE'),view:'strafen',people:[...M],gaeste:new Set(),present:new Set(),deckel:new Set(),ev:[],runde:{drink:'',zahlt:null},runden:[],drinks:['Korn','Ouzo','Sambuca','Jägermeister','Berliner Luft'],fb:false,essen:{},closed:false,sheet:null,sticky:false,letzte:null,ov:null,toast:null,fokus:false,neu:null,kopiert:null,kopierFehler:null,tview:'zettel',korr:false,selP:null,selV:null}}
 function zeit(){return new Date().toTimeString().slice(0,5)}
 function add(e){e.id=++n;e.t=zeit();e.c=e.c||0;S.ev.push(e);return e}
 function speichern(){
@@ -268,7 +292,7 @@ function rueck(ops){(ops||[]).forEach(u=>{
   if(u.typ==='fb')S.fb=u.wert;
 })}
 const schnapsSnap=()=>JSON.stringify({r:S.runde,rs:S.runden});
-function oeffneSheet(p,sticky){S.sheet=p;S.sticky=!!sticky;S.letzte=null;S.toast=null;S.fokus=true;S.neu='sheet'}
+function oeffneSheet(p,sticky){S.korr=false;S.sheet=p;S.sticky=!!sticky;S.letzte=null;S.toast=null;S.fokus=true;S.neu='sheet'}
 function oeffneOv(o){S.ov=o;S.toast=null;S.fokus=true;S.neu='ov';S.kopiert=null;S.kopierFehler=null}
 function schliesseOben(){if(S.ov)S.ov=null;else if(S.sheet){S.sheet=null;S.sticky=false;S.letzte=null}}
 function gebucht(p,txt,ids){
@@ -282,20 +306,25 @@ function ziel(z){return z==='aktuell'?S.runde:S.runden.find(r=>r.id===+z)}
 function render(){
   speichern();wach();
   const app=$('#app'),m=$('.main'),z=$('.zwrap'),ib=$('.blatt .inhalt'),io=$('.ov .inhalt');
-  const pos={m:m?m.scrollTop:0,zt:z?z.scrollTop:0,zl:z?z.scrollLeft:0,ib:ib?ib.scrollTop:0,io:io?io.scrollTop:0};
+  const ri=$('.rail-in'),pos={m:m?m.scrollTop:0,zt:z?z.scrollTop:0,zl:z?z.scrollLeft:0,ib:ib?ib.scrollTop:0,io:io?io.scrollTop:0,r:ri?ri.scrollTop:0};
   const altV=app.dataset.v,altO=app.dataset.o,altS=app.dataset.s,okey=S.ov?S.ov.k+(S.ov.id||''):'';
-  const ebene=!!(S.sheet||S.ov),inert=ebene?' inert':'';
-  const views={strafen:vStrafen,schnaps:vSchnaps,zettel:vZettel};
-  app.innerHTML='<div class="vorne"'+inert+' style="display:contents">'+kopf()+banner()+'<main class="main'+(S.view==='zettel'?' fix':'')+'">'+views[S.view]()+'</main><div class="dock">'+(S.toast&&!ebene?toastHtml():'')+(S.view==='strafen'&&!S.closed?aktionen():'')+nav()+'</div></div>'+(S.sheet?blatt():'')+(S.ov?overlay():'');
-  if(altV===S.view){const m2=$('.main');if(m2)m2.scrollTop=pos.m;const z2=$('.zwrap');if(z2){z2.scrollTop=pos.zt;z2.scrollLeft=pos.zl}}
+  const ebene=!!(S.sheet||S.ov),inert=ebene?' inert':'',q=quer.matches,vkey=q?'q'+S.tview:S.view;
+  const views={strafen:vStrafen,schnaps:vSchnaps,zettel:vZettel},toastH=S.toast&&!ebene?toastHtml():'';
+  app.innerHTML='<div class="vorne"'+inert+' style="display:contents">'+kopf()+banner()+(q?
+    '<div class="quer"><main class="main'+(S.tview==='zettel'?' fix':'')+'">'+(S.tview==='zettel'?vZettel(!S.closed):vKacheln())+'</main><aside class="rail"><div class="rail-in">'+rail()+'</div><div class="dock">'+toastH+(S.closed?'':aktionen())+'</div></aside></div>':
+    '<main class="main'+(S.view==='zettel'?' fix':'')+'">'+views[S.view]()+'</main><div class="dock">'+toastH+(S.view==='strafen'&&!S.closed?aktionen():'')+nav()+'</div>')+
+    '</div>'+(S.sheet?blatt():'')+(S.ov?overlay():'');
+  if(altV===vkey){const m2=$('.main');if(m2)m2.scrollTop=pos.m;const z2=$('.zwrap');if(z2){z2.scrollTop=pos.zt;z2.scrollLeft=pos.zl}const r2=$('.rail-in');if(r2)r2.scrollTop=pos.r}
   if(S.sheet&&altS===S.sheet&&S.neu!=='sheet'){const e=$('.blatt .inhalt');if(e)e.scrollTop=pos.ib}
   if(S.ov&&altO===okey&&S.neu!=='ov'){const e=$('.ov .inhalt');if(e)e.scrollTop=pos.io}
-  app.dataset.v=S.view;app.dataset.o=okey;app.dataset.s=S.sheet||'';
+  app.dataset.v=vkey;app.dataset.o=okey;app.dataset.s=S.sheet||'';
   if(S.fokus){const t=document.querySelectorAll('.ebene .titel');if(t.length)t[t.length-1].focus({preventScroll:true});S.fokus=false}
   S.neu=null;
   if(histOk&&ebene&&!hist){try{history.pushState({kcsb:1},'');hist=1}catch(e){histOk=false}}
 }
-function kopf(){return '<header class="kopf"><div class="marke"><b>KCSB</b><span>Kegelabend '+S.datum.split('-').reverse().join('.')+'</span></div>'+(S.fb?'<span class="pill fb">Fußball läuft</span>':'')+'<button class="btn ghost" data-a="menu">Menü</button></header>'}
+function kopf(){return '<header class="kopf"><div class="marke"><b>KCSB</b><span>Kegelabend '+S.datum.split('-').reverse().join('.')+'</span></div>'+(S.fb?'<span class="pill fb">Fußball läuft</span>':'')+(quer.matches?
+  '<div class="seg2">'+[['zettel','Zettel'],['kacheln','Kacheln']].map(([v,l])=>'<button data-a="tview" data-v="'+v+'" aria-pressed="'+(S.tview===v)+'">'+l+'</button>').join('')+'</div>'+
+  (S.closed?'':'<button class="btn '+(S.korr?'rot':'ghost')+'" data-a="korr" aria-pressed="'+S.korr+'">Korrigieren</button>'):'')+'<button class="btn ghost" data-a="menu">Menü</button></header>'}
 function banner(){return (speicherFehler?'<div class="banner" role="alert"><span><b>Speichern fehlgeschlagen</b><small>Einträge gehen beim Schließen der App verloren. Bitte zusätzlich auf Papier notieren.</small></span></div>':'')+(S.closed?'<div class="banner" role="status"><span><b>Abend abgeschlossen</b><small>Änderungen sind gesperrt.</small></span><button class="btn" data-a="ergebnis">Ergebnis</button><button class="btn ghost" data-a="auf">Wieder öffnen</button></div>':'')}
 function nav(){return '<nav class="nav" aria-label="Bereiche">'+[['strafen','Strafen'],['schnaps','Schnaps'],['zettel','Zettel']].map(([v,l])=>'<button data-a="view" data-v="'+v+'"'+(S.view===v?' aria-current="page"':'')+'>'+l+'</button>').join('')+'</nav>'}
 function aktionen(){return '<div class="akt">'+(S.fb?'':'<button class="btn gruen" data-a="fbstart">Fußball starten</button>')+'<button class="btn rot" data-a="ende">Spielende</button></div>'}
@@ -317,25 +346,63 @@ function slots(){
   return '<div class="slots">'+[['Schnaps',r.drink],['zahlt',r.zahlt],['trinkt',null]].map((x,i)=>'<div class="slot'+(i===nx?' dran':'')+(x[1]?' voll':'')+'"><small>'+(i+1)+'. '+x[0]+'</small><b>'+(x[1]?esc(x[1]):i===nx?'nächste 5':'')+'</b></div>').join('')+'</div>';
 }
 function vSchnaps(){
+  return '<h3>Laufende Runde</h3><section class="runde-akt">'+slots()+
+    '<button class="btn rot breit" data-a="fuenfblatt"'+(S.closed?' disabled':'')+'>5 eintragen</button></section>'+rundenListe();
+}
+// Tablet quer: Schnaps direkt in der Leiste, ein Tipp je 5
+function rail(){
+  const nx=naechste();
+  let h='<h3>Schnaps</h3>'+slots();
+  if(!S.closed&&nx===0)h+='<div class="chips" style="margin-top:8px">'+S.drinks.map(d=>'<button class="chip" data-a="drink" data-ziel="aktuell" data-g="'+esc(d)+'">'+esc(d)+'</button>').join('')+'<button class="chip" data-a="fuenfblatt">+ Anderes</button></div>';
+  if(!S.closed&&nx>0)h+='<p class="leise" style="margin-top:8px">'+(nx===1?'Wer zahlt?':'Wer trinkt?')+'</p><div class="pgrid" style="margin-top:6px">'+anwesend().map(p=>'<button class="pk" data-a="fuenf" data-p="'+esc(p)+'">'+esc(p)+'</button>').join('')+
+    '</div><button class="lnk" data-a="schnapsaendern">Schnaps ändern</button> <button class="lnk" data-a="fuenfweg">Letzte 5 zurücknehmen</button>';
+  return h+rundenListe();
+}
+function rundenListe(){
   const fertig=[...S.runden].reverse();
-  let h='<h3>Laufende Runde</h3><section class="runde-akt">'+slots()+
-    '<button class="btn rot breit" data-a="fuenfblatt"'+(S.closed?' disabled':'')+'>5 eintragen</button></section>';
-  h+='<h3>Fertige Runden</h3>';
+  let h='<h3>Fertige Runden</h3>';
   if(!fertig.length)return h+'<p class="leer-s">Noch keine fertige Runde. Drei Fünfen ergeben eine Runde.</p>';
   h+='<div class="liste">'+fertig.map((x,i)=>'<button class="vz" data-a="runde" data-id="'+x.id+'"'+(S.closed?' disabled':'')+'><span><b>'+esc(x.drink||'Getränk nachtragen')+'</b><br><span class="pr">'+esc(x.zahlt)+' zahlt · '+esc(x.trinkt)+' trinkt</span></span><span class="pr">'+x.t+'</span></button>').join('')+'</div>';
   return h+(S.closed?'':'<p class="hinweis">Fertige Runden bleiben, wie sie sind. Antippen, um das Getränk zu ändern oder eine Runde zu streichen.</p>');
 }
-function vZettel(){
+// t: Zellen sind antippbar (Tablet quer), sonst nur Anzeige (Handy)
+function vZettel(t){
   const ps=anwesend(),L=live(),z=(p,f)=>L.filter(e=>e.p===p&&f(e)).length;
   const row=(l,pr,cells,cls)=>'<tr'+(cls?' class="'+cls+'"':'')+'><th scope="row">'+l+(pr?'<small>'+pr+'</small>':'')+'</th>'+cells.map(c=>'<td>'+c+'</td>').join('')+'</tr>';
-  let h='<div class="zwrap"><table class="zettel"><thead><tr class="r1"><th class="ecke" scope="col">Vergehen</th>'+ps.map(p=>'<th scope="col"><button class="kopfbtn" data-a="person" data-p="'+esc(p)+'">'+esc(p)+'</button></th>').join('')+'</tr>';
+  const zelle=(p,k,x)=>t?'<button class="z" data-a="zelle" data-p="'+esc(p)+'" data-k="'+esc(k)+'" aria-label="'+esc(titel(k)+', '+p)+'">'+x+'</button>':x;
+  let h='<div class="zwrap"><table class="zettel'+(t?' tipp':'')+'"><thead><tr class="r1"><th class="ecke" scope="col">Vergehen</th>'+ps.map(p=>'<th scope="col"><button class="kopfbtn" data-a="person" data-p="'+esc(p)+'">'+esc(p)+'</button></th>').join('')+'</tr>';
   h+='<tr class="r2"><th class="ecke" scope="row">Summe</th>'+ps.map(p=>'<td>'+eur(summe(p))+'</td>').join('')+'</tr></thead><tbody>';
   h+=row('Großer Deckel','',ps.map(p=>S.deckel.has(p)?'ja':''),'klar');
-  h+=V.map(([v,c])=>row(esc(v),eur(c),ps.map(p=>tally(z(p,e=>e.type==='strich'&&e.v===v))))).join('');
-  h+=row('Sonderbeträge','',ps.map(p=>{const s=L.filter(e=>e.p===p&&e.type==='sonder').reduce((a,e)=>a+e.c,0);return s?eur(s):''}),'klar');
-  h+=[['sieg','Fußball: Sieg'],['tor','Fußball: Tor'],['vorlage','Fußball: Vorlage']].map(([t,l])=>row(l,'',ps.map(p=>tally(z(p,e=>e.type===t))),'fbz')).join('');
-  h+=row('Essen','',ps.map(p=>esc(S.essen[p]||'')),'klar');
-  return h+'</tbody></table></div><p class="hinweis">Namen antippen für die Einzelansicht. Seitlich wischen für weitere Personen.</p>';
+  h+=V.map(([v,c])=>row(esc(v),eur(c),ps.map(p=>zelle(p,v,tally(z(p,e=>e.type==='strich'&&e.v===v)))))).join('');
+  h+=row('Sonderbeträge','',ps.map(p=>{const s=L.filter(e=>e.p===p&&e.type==='sonder').reduce((a,e)=>a+e.c,0);return zelle(p,'sonder',s?eur(s):'')}),'klar');
+  h+=[['sieg','Fußball: Sieg'],['tor','Fußball: Tor'],['vorlage','Fußball: Vorlage']].map(([k,l])=>row(l,'',ps.map(p=>{const x=tally(z(p,e=>e.type===k));return k==='sieg'||!S.fb?x:zelle(p,k,x)}),'fbz')).join('');
+  h+=row('Essen','',ps.map(p=>zelle(p,'essen',esc(S.essen[p]||''))),'klar');
+  const hin=!t?'Namen antippen für die Einzelansicht. Seitlich wischen für weitere Personen.':S.korr?'Korrigieren: Der nächste Tipp entfernt dort einen Eintrag.':'Tipp in eine Zelle setzt einen Strich. Namen antippen für die Einzelansicht.';
+  return h+'</tbody></table></div><p class="hinweis'+(S.korr?' rosatext':'')+'">'+hin+'</p>';
+}
+function vKacheln(){
+  const P=S.selP,n=k=>P?live().filter(e=>e.p===P&&passt(k,e)).length:0;
+  const vt=(k,pr,cls)=>'<button class="vt'+(cls||'')+(S.selV===k?' an':'')+'" data-a="selv" data-k="'+esc(k)+'" aria-pressed="'+(S.selV===k)+'"><span>'+esc(titel(k))+'</span><span class="pr">'+pr+(n(k)?' · '+n(k)+'×':'')+'</span></button>';
+  return '<div class="tk"><section><h3>Person</h3><div class="pg">'+anwesend().map(p=>'<button class="kachel'+(P===p?' an':'')+'" data-a="selp" data-p="'+esc(p)+'" aria-pressed="'+(P===p)+'"><span class="kn">'+esc(p)+'</span><span class="kb">'+eur(summe(p))+'</span></button>').join('')+
+    '</div></section><section><h3>'+(P?'Vergehen für '+esc(P):S.selV?'Jetzt Person wählen':'Vergehen')+'</h3><div class="vg">'+V.map(([v,c])=>vt(v,eur(c))).join('')+vt('sonder','frei')+
+    (S.fb?vt('tor','Fußball',' gruen')+vt('vorlage','Fußball',' gruen'):'')+vt('essen',P&&S.essen[P]?esc(S.essen[P]):'Freitext')+'</div></section></div>'+
+    '<p class="hinweis'+(S.korr?' rosatext':'')+'">'+(S.korr?'Korrigieren: Person und Vergehen antippen, dort wird ein Eintrag entfernt.':'Person und Vergehen antippen, Reihenfolge egal.')+'</p>';
+}
+const titel=k=>({sonder:'Sonderbetrag',tor:'Tor',vorlage:'Vorlage',essen:'Essen'}[k]||k);
+const passt=(k,e)=>k==='sonder'?e.type==='sonder':k==='tor'||k==='vorlage'?e.type===k:e.type==='strich'&&e.v===k;
+// Ein Tipp auf Person und Vergehen, gemeinsam für Personenblatt, Zettel-Matrix und Kacheln
+function tipp(p,k){
+  if(S.closed)return;
+  if(k==='essen'){S.korr=false;oeffneOv({k:'essenEdit',p,from:'zelle'});return}
+  if(S.korr){
+    S.korr=false;const e=[...live()].reverse().find(x=>x.p===p&&passt(k,x));
+    if(!e){toast('Bei '+p+' gibt es dort nichts zu entfernen.');return}
+    e.del=true;vib(20);toast(p+' · '+name(e)+' entfernt',[{typ:'undel',ids:[e.id]}]);return;
+  }
+  if(k==='sonder'){oeffneOv({k:'sonder',p,c:0});return}
+  if(k==='tor'||k==='vorlage'){const e=add({type:k,p});vib(30);gebucht(p,titel(k),[e.id]);return}
+  if(preis[k]>=RUECKFRAGE){oeffneOv({k:'confirm',titel:p+': '+k+'?',betrag:preis[k],ok:eur(preis[k])+' buchen',aktion:'buche',daten:{p,v:k}});return}
+  buche(p,k);
 }
 
 function blatt(){
@@ -458,7 +525,13 @@ const A={
   zu:()=>{S.sheet=null;S.sticky=false;S.letzte=null},
   person:d=>oeffneSheet(d.p,false),
   sticky:()=>{S.sticky=!S.sticky},
-  strich:d=>{if(S.closed)return;const p=S.sheet;if(preis[d.v]>=RUECKFRAGE){oeffneOv({k:'confirm',titel:p+': '+d.v+'?',betrag:preis[d.v],ok:eur(preis[d.v])+' buchen',aktion:'buche',daten:{p,v:d.v}});return}buche(p,d.v)},
+  strich:d=>tipp(S.sheet,d.v),
+  tview:d=>{S.tview=d.v;S.selP=S.selV=null;S.korr=false},
+  korr:()=>{S.korr=!S.korr},
+  zelle:d=>tipp(d.p,d.k),
+  selp:d=>{if(S.selV){const k=S.selV;S.selV=null;tipp(d.p,k)}else S.selP=S.selP===d.p?null:d.p},
+  selv:d=>{if(S.selP){const p=S.selP;S.selP=null;tipp(p,d.k)}else S.selV=S.selV===d.k?null:d.k},
+  schnapsaendern:()=>oeffneOv({k:'fuenf',drinkNeu:true}),
   ja:()=>{const o=S.ov;S.ov=null;JA[o.aktion](o.daten||{})},
   fb:d=>{const p=S.sheet,e=add({type:d.t,p});vib(30);gebucht(p,d.t==='tor'?'Tor':'Vorlage',[e.id])},
   minus:d=>{
@@ -529,7 +602,7 @@ const A={
   essen:d=>oeffneOv({k:'essen',from:d.from||(S.ov&&S.ov.from)||''}),
   essenp:d=>oeffneOv({k:'essenEdit',p:d.p,from:S.ov.from}),
   gericht:d=>{const i=$('#gericht');if(i)i.value=d.g;return 'nr'},
-  essenok:()=>{const i=$('#gericht'),v=i?i.value.trim():'',o=S.ov;if(v)S.essen[o.p]=v;else delete S.essen[o.p];oeffneOv({k:'essen',from:o.from})},
+  essenok:()=>{const i=$('#gericht'),v=i?i.value.trim():'',o=S.ov;if(v)S.essen[o.p]=v;else delete S.essen[o.p];if(o.from==='zelle')S.ov=null;else oeffneOv({k:'essen',from:o.from})},
   ab:()=>oeffneOv({k:'ab'}),
   abok:()=>{S.closed=true;S.fb=false;S.sheet=null;S.sticky=false;S.letzte=null;S.runde={drink:'',zahlt:null};oeffneOv({k:'fertig'})},
   ergebnis:()=>oeffneOv({k:'fertig'}),
@@ -575,6 +648,9 @@ document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&(S.ov||S.sheet)){
 window.addEventListener('popstate',()=>{if(!hist)return;hist=0;if(S.ov||S.sheet){schliesseOben();render()}});
 
 document.addEventListener('visibilitychange',()=>{if(S)wach()});
+// Tablet quer: Zettel-Matrix oder Kacheln mit Schnaps-Leiste; sonst Handy-Ansicht
+const quer=matchMedia('(orientation: landscape) and (min-width: 1000px)');
+quer.addEventListener('change',()=>{if(S)render()});
 
 async function start(){
   const d=await (await fetch('../daten/stammdaten.json')).json();

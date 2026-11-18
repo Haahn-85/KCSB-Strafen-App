@@ -46,15 +46,31 @@ try {
   await klick('.kachel[data-p="Benno"]');
   await klick('[data-a="strich"][data-v="Pudel"]');
   assert.match(await js(benno), /1 Strich.*0,25/);
+
+  // iPad quer: Zelle setzt einen Strich, Korrigieren nimmt ihn zurück, Kacheln in beliebiger Reihenfolge
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1180, height: 820, deviceScaleFactor: 1, mobile: true });
+  const zelle = `document.querySelector('.z[data-p="Benno"][data-k="Pudel"]')?.textContent`;
+  await bis(() => js(zelle), 'Queransicht');
+  await klick('.z[data-p="Benno"][data-k="Pudel"]');
+  assert.equal(await js(zelle), '||');
+  await klick('[data-a="korr"]');
+  await klick('.z[data-p="Benno"][data-k="Pudel"]');
+  assert.equal(await js(zelle), '|');
+  await klick('[data-a="tview"][data-v="kacheln"]');
+  await klick('[data-a="selv"][data-k="Gasse"]');
+  await klick('[data-a="selp"][data-p="Benno"]');
+  assert.match(await js(`document.querySelector('[data-a="selp"][data-p="Benno"]').textContent`), /0,75/);
+  await cdp('Emulation.clearDeviceMetricsOverride');
+  await bis(() => js(benno), 'zurück zur Handy-Ansicht');
   await js('navigator.serviceWorker.ready.then(() => true)');
 
   server.kill();
   await cdp('Page.reload');
-  assert.match(await bis(() => js(benno), 'Neustart offline'), /1 Strich.*0,25/);
+  assert.match(await bis(() => js(benno), 'Neustart offline'), /2 Striche.*0,75/);
   assert.equal(await js('!!navigator.serviceWorker.controller'), true);
   assert.equal(await js(`document.fonts.ready.then(() => document.fonts.check('600 24px "Barlow Condensed"'))`), true);
   assert.deepEqual(fehler, []);
-  console.log('ok: Reihenfolge, Strich, Speichern, Neustart offline mit Schriften');
+  console.log('ok: Reihenfolge, Strich, iPad quer (Zelle, Korrigieren, Kacheln), Speichern, Neustart offline mit Schriften');
   ws.close();
 } finally {
   server.kill();

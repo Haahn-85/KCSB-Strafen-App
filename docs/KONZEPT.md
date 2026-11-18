@@ -129,7 +129,7 @@ Der Textcode enthält die vollständigen Daten des Abends und endet mit einer Pr
 
 ## Tablet (Querformat)
 
-Zwei Ansichten, umschaltbar im Kopf; beide gefallen, welche bleibt, ist offen.
+Zwei Ansichten, umschaltbar im Kopf; beide gefallen, welche bleibt, ist offen. Umgesetzt in `app/index.html`: Die App zeigt sie automatisch im Querformat ab 1000 px Breite, hochkant die Handy-Ansicht. Beide nutzen denselben Abend.
 
 - **Zettel:** Matrix wie der Papierzettel, ein Tipp in eine Zelle setzt einen Strich. Zeilen für Vergehen, Sonderbetrag, Fußball (Sieg, Tor, Vorlage) und Essen; Summenzeile unten fest.
 - **Kacheln:** links die Personen, rechts alle Vergehen als große Tasten. Person und Vergehen in beliebiger Reihenfolge antippen.
@@ -152,7 +152,7 @@ Die App führt eigene Stammdaten (`daten/stammdaten.json`) und speichert jeden S
 - **Farben:** fast schwarzer Hintergrund, Kacheln eine Stufe heller mit sichtbarem Rand. Clubrot #C8102E für die wichtigste Aktion und Auswahl, Rosa für Beträge, Grün nur für Fußball.
 - **Schrift:** Barlow Condensed für Namen und Zahlen in Kacheln, Barlow für Text. Beträge in Tabellenziffern. Keine Schrift unter 14 px.
 - **Bewegung:** Blätter fahren in etwa 0,2 s hoch; bei reduzierter Bewegung ohne Animation. Vibration kurz beim Strich, doppelt bei Sammelbuchung.
-- **Gerät:** Hochformat fest, Bildschirm bleibt während eines offenen Abends an.
+- **Gerät:** Handy hochkant, Tablet quer; die App erzwingt keine Ausrichtung mehr, weil dasselbe Manifest für beide gilt. Bildschirm bleibt während eines offenen Abends an.
 
 ## Ausbaustufen und offene Entscheidungen
 
