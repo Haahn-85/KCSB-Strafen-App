@@ -46,10 +46,10 @@ Die App ist auf die Regeln genau dieses Clubs gebaut, nicht auf Kegelstrafen im 
 - Schnaps: Bei der ersten 5 hält die App nur das Getränk fest (aus Vorschlägen oder als Freitext); wer diese 5 geworfen hat, ist unerheblich und wird nicht erfasst. Die zweite 5 bestimmt, wer zahlt, die dritte, wer trinkt; dieselbe Person darf beides sein. Das Getränk lässt sich bis zum Ende der Runde ändern. Ein angefangener Zyklus verfällt am Ende des Abends.
 - Korrigieren muss jederzeit möglich sein. Eine Rückfrage gibt es nur bei Vergehen ab 5 €.
 - Abschluss: Lückenprüfung, Summen pro Person, Sperren des Abends. Wiederöffnen ist möglich und erzeugt einen neuen Export. Frühere Abende bleiben einsehbar.
-- Export: Textcode zum Kopieren und Datei zum Teilen, beide mit Prüfsumme, dazu eine lesbare Zusammenfassung für die Club-Gruppe. Ein reiner Hash-Wert reicht nicht, weil er keine Daten enthält.
+- Export: ein Code mit allen Daten des Abends und Prüfsumme, angezeigt als QR-Code für ein Bildschirmfoto und als Text zum Teilen, dazu eine lesbare Zusammenfassung für die Club-Gruppe. Eine eigene Datei gibt es nicht. Der Weg zur Kasse läuft per Mail an den eigenen Rechner, der keine Kamera hat; das Bildschirmfoto wird dort mit den Belegen hochgeladen. Ein reiner Hash-Wert reicht nicht, weil er keine Daten enthält.
 - Sprache: nur Deutsch.
 - Eigenes Projekt, getrennt von der KCSB-Kasse. Gemeinsam sind nur Namen, Vergehen und Preise. Im Kassen-Projekt wird nichts angelegt.
-- Offene Entscheidungen: genaues Format von Textcode und Prüfsumme, festzulegen zusammen mit dem Import in der Kasse.
+- Offene Entscheidungen: genaues Format von Code und Prüfsumme, festzulegen zusammen mit dem Import in der Kasse. Vorschlag in `docs/EXPORTFORMAT.md`.
 
 ## Brand Commitments
 

@@ -15,6 +15,7 @@ Die App entsteht als installierbare Web-App (PWA) in `app/`, die offline läuft.
 | `docs/KONZEPT.md` | Bildschirme und Abläufe, Stand der Klickdummys |
 | `docs/ENTSCHEIDUNGEN.md` | Alle bisherigen Entscheidungen mit Begründung |
 | `docs/KRITIK-2026-11-17.md` | Design-Bewertung des Handy-Klickdummys und was daraus umgesetzt wurde |
+| `docs/EXPORTFORMAT.md` | Export an die Kasse: Weg entschieden (QR-Code, Text), Format als Vorschlag |
 | `klickdummy/index.html` | Klickdummy Handy (hochkant) |
 | `klickdummy/tablet.html` | Klickdummy Tablet (quer), zwei Ansichten |
 | `daten/stammdaten.json` | Mitglieder und Strafenkatalog wie in der KCSB-Kasse |

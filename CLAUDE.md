@@ -35,7 +35,7 @@ Handy-App, mit der der Schriftführer des KC Spritney Biers (KCSB) am Kegelabend
 
 ## Offene Punkte
 
-- Format von Exportcode und Prüfsumme, gemeinsam mit dem Import in der KCSB-Kasse festlegen. Der Code im Klickdummy (`KCSB1.<base64-JSON>.<Prüfsumme>`) ist nur ein Beispiel.
+- Format von Exportcode und Prüfsumme, gemeinsam mit dem Import in der KCSB-Kasse festlegen. Vorschlag in `docs/EXPORTFORMAT.md`; entschieden ist nur der Weg: QR-Code als Bildschirmfoto, Text als Ersatz, keine Datei.
 - Welche Tablet-Ansicht bleibt: Zettel-Matrix oder Kacheln.
 
 ## Gestaltung

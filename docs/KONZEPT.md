@@ -121,11 +121,11 @@ Einen eigenen Verlauf gibt es nicht; jeder Eintrag trägt intern weiter seine Uh
 
 | Form | Zweck | Weg |
 | --- | --- | --- |
-| Textcode | Import in die Kasse | „Code für die Kasse kopieren“, per Messenger oder Mail an sich selbst, in der Kasse einfügen |
-| Datei | Import in die Kasse, Sicherung | „Als Datei teilen“ (in der fertigen App; im Klickdummy nicht möglich) |
+| QR-Code | Import in die Kasse, Sicherung | Bildschirmfoto, per Mail an den eigenen Rechner, in der Kasse mit den Belegen hochladen |
+| Textcode | Ersatzweg für den Import | „Code teilen“, per Mail an sich selbst, in der Kasse einfügen |
 | Lesbare Zusammenfassung | Club-Gruppe | „Zusammenfassung kopieren“: Strafen pro Person, Schnaps-Runden |
 
-Der Textcode enthält die vollständigen Daten des Abends und endet mit einer Prüfsumme, damit die Kasse abgeschnittene oder veränderte Codes erkennt. Das genaue Format ist offen. Wiederöffnen ist möglich; beim nächsten Abschluss entsteht ein neuer Code.
+Der Textcode enthält die vollständigen Daten des Abends und endet mit einer Prüfsumme, damit die Kasse abgeschnittene oder veränderte Codes erkennt. Eine eigene Datei gibt es nicht. Das genaue Format ist offen, Vorschlag in `docs/EXPORTFORMAT.md`. Wiederöffnen ist möglich; beim nächsten Abschluss entsteht ein neuer Code.
 
 ## Tablet (Querformat)
 
