@@ -11,9 +11,10 @@ Handy-App, mit der der Schriftführer des KC Spritney Biers (KCSB) am Kegelabend
 
 ## Stand
 
-- Konzept, PRODUCT.md und zwei Klickdummys sind fertig. Es gibt noch keinen App-Code.
-- Die Technik ist offen: installierbare Web-App (PWA) oder native Android-App (Kotlin mit Jetpack Compose). Entschieden wird nach einem Test der Klickdummys am Kegeltisch. Nicht eigenmächtig festlegen; bei Bedarf die Abwägung vorlegen und fragen.
-- `## Platform` in PRODUCT.md steht vorläufig auf `web`. Fällt die Wahl auf native Android, dort auf `android` umstellen.
+- Technik: PWA in `app/`, entstanden aus dem Handy-Klickdummy. HTML und JavaScript ohne Framework, ohne Build-Schritt, ohne npm-Pakete. Offline über `app/sw.js`; Stammdaten lädt die App aus `daten/stammdaten.json`. Der Abend steht im `localStorage` und wird nach jeder Aktion gespeichert.
+- Auslieferung über GitHub Pages aus dem Hauptverzeichnis; die App liegt unter `/app/`.
+- Erster Test am Kegeltisch auf einem iPad (Safari/Chrome) mit dem Handy-Layout hochkant.
+- Rauchtest: `node test/smoke.mjs` (braucht `chromium` und `python3`). Prüft Anwesenheit, Strich, Speichern und den Neustart ohne Netz.
 
 ## Regeln für die Arbeit
 
@@ -34,9 +35,7 @@ Handy-App, mit der der Schriftführer des KC Spritney Biers (KCSB) am Kegelabend
 
 ## Offene Punkte
 
-- Technik (siehe oben).
 - Format von Exportcode und Prüfsumme, gemeinsam mit dem Import in der KCSB-Kasse festlegen. Der Code im Klickdummy (`KCSB1.<base64-JSON>.<Prüfsumme>`) ist nur ein Beispiel.
-- Abgleich mit der Original-Strafenliste in `/home/hahn/Projekte/KCSB-Kasse/Grundlage`, die bisher niemand eingesehen hat.
 - Welche Tablet-Ansicht bleibt: Zettel-Matrix oder Kacheln.
 
 ## Gestaltung

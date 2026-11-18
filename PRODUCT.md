@@ -6,11 +6,9 @@
 
 web
 
-Vorläufig: Die bisherigen Klickdummys sind Web-Seiten. Fällt die Entscheidung unter `## Stack` auf eine native Android-App, wird dieser Wert auf `android` umgestellt.
-
 ## Stack
 
-Offen. Zur Wahl stehen eine installierbare, offline-fähige Web-App (PWA, HTML/JavaScript) und eine native Android-App (Kotlin mit Jetpack Compose). Entschieden wird nach dem Test der Klickdummys am Kegeltisch. Bis dahin entstehen Prototypen als einzelne HTML-Seiten.
+Installierbare Web-App (PWA): HTML und JavaScript ohne Framework und ohne Build-Schritt, offline über einen Service Worker. Voraussetzung ist, dass die App nach der ersten Installation komplett ohne Netz läuft. Ausgeliefert über GitHub Pages. Entschieden am 18.11.2026.
 
 ## Users
 
@@ -51,7 +49,7 @@ Die App ist auf die Regeln genau dieses Clubs gebaut, nicht auf Kegelstrafen im 
 - Export: Textcode zum Kopieren und Datei zum Teilen, beide mit Prüfsumme, dazu eine lesbare Zusammenfassung für die Club-Gruppe. Ein reiner Hash-Wert reicht nicht, weil er keine Daten enthält.
 - Sprache: nur Deutsch.
 - Eigenes Projekt, getrennt von der KCSB-Kasse. Gemeinsam sind nur Namen, Vergehen und Preise. Im Kassen-Projekt wird nichts angelegt.
-- Offene Entscheidungen: Stack (siehe oben); genaues Format von Textcode und Prüfsumme, festzulegen zusammen mit dem Import in der Kasse; Abgleich mit der Original-Strafenliste im Ordner `Grundlage` des Kassen-Projekts.
+- Offene Entscheidungen: genaues Format von Textcode und Prüfsumme, festzulegen zusammen mit dem Import in der Kasse.
 
 ## Brand Commitments
 
@@ -68,7 +66,8 @@ Die App ist auf die Regeln genau dieses Clubs gebaut, nicht auf Kegelstrafen im 
 - Klickdummy Tablet: `klickdummy/tablet.html`, veröffentlicht als [KCSB Strafen-App Klickdummy Tablet](https://claude.ai/artifact/MzxxvPaw6xBhuR77J6iZ8S). Beide Ansichten (Zettel-Matrix und Kacheln) gefallen; welche bleibt, ist offen.
 - Stammdaten: `daten/stammdaten.json`, übernommen aus der KCSB-Kasse.
 - KCSB-Kasse (`/home/hahn/Projekte/KCSB-Kasse`) als Vorlage für Datenmodell und Papierzettel: `src/kcsb_kasse/db/modelle.py`, `src/kcsb_kasse/pdf/strafenzettel.py`, `src/kcsb_kasse/erkennung/prompts/`.
-- Nicht vorhanden: die Original-Strafenliste im Ordner `Grundlage` (nicht eingesehen), echte Abenddaten aus der App, Tests am Kegeltisch. Nichts davon darf erfunden werden.
+- Original-Strafenliste im Ordner `Grundlage` der Kasse: am 18.11.2026 abgeglichen, Katalog stimmt überein (siehe `docs/ENTSCHEIDUNGEN.md`).
+- Nicht vorhanden: echte Abenddaten aus der App, Tests am Kegeltisch. Nichts davon darf erfunden werden.
 
 ## Product Principles
 

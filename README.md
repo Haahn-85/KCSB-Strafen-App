@@ -4,7 +4,7 @@ Strafen am Kegelabend direkt auf dem Handy erfassen statt auf dem Papierzettel. 
 
 ## Stand
 
-Konzept und Klickdummys sind fertig, App-Code gibt es noch nicht. Die Technik (installierbare Web-App oder native Android-App) wird nach einem Test der Klickdummys am Kegeltisch entschieden.
+Die App entsteht als installierbare Web-App (PWA) in `app/`, die offline läuft. Grundlage ist der Handy-Klickdummy, ergänzt um Speichern, echte Stammdaten und Offline-Betrieb. Der Export für die Kasse fehlt noch, weil das Format erst mit der Kasse abgestimmt wird.
 
 ## Inhalt
 
@@ -18,6 +18,18 @@ Konzept und Klickdummys sind fertig, App-Code gibt es noch nicht. Die Technik (i
 | `klickdummy/index.html` | Klickdummy Handy (hochkant) |
 | `klickdummy/tablet.html` | Klickdummy Tablet (quer), zwei Ansichten |
 | `daten/stammdaten.json` | Mitglieder und Strafenkatalog wie in der KCSB-Kasse |
+| `app/` | Die App (PWA): `index.html`, Service Worker `sw.js`, Manifest, Icons, Schriften |
+| `test/smoke.mjs` | Rauchtest im Headless-Chromium, auch offline |
+
+## App lokal starten
+
+```
+python3 -m http.server 8000
+```
+
+Dann `http://localhost:8000/app/` öffnen. Rauchtest: `node test/smoke.mjs` (braucht `chromium`).
+
+Auf dem iPad: die Adresse von GitHub Pages in Safari öffnen, Teilen, „Zum Home-Bildschirm“. Danach nur noch die App vom Home-Bildschirm benutzen; sie hat ihren eigenen Speicher, getrennt vom Safari-Tab.
 
 ## Klickdummys ansehen
 
@@ -37,6 +49,5 @@ Veröffentlichte Fassungen zum Teilen:
 
 ## Nächste Schritte
 
-1. Klickdummy einen Kegelabend lang parallel zum Papier bedienen und Fehltipps notieren.
-2. Danach die Technik entscheiden.
-3. Exportformat zusammen mit dem Import in der KCSB-Kasse festlegen.
+1. App auf dem iPad einen Kegelabend lang parallel zum Papier bedienen und Fehltipps notieren.
+2. Exportformat zusammen mit dem Import in der KCSB-Kasse festlegen.

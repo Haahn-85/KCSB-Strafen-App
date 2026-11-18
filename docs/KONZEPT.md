@@ -166,8 +166,8 @@ Die App führt eigene Stammdaten (`daten/stammdaten.json`) und speichert jeden S
 
 Offen:
 
-- [ ] **Technik:** installierbare Web-App (PWA) oder native Android-App (Kotlin/Compose). Entscheidung nach dem Test am Tisch.
+- [x] **Technik:** installierbare Web-App (PWA), entschieden am 18.11.2026.
 - [ ] **Exportformat** und Prüfsumme, zusammen mit dem Import in der Kasse.
-- [ ] **Abgleich** mit der Original-Strafenliste im Ordner „Grundlage“ der Kasse.
+- [x] **Abgleich** mit der Original-Strafenliste im Ordner „Grundlage“ der Kasse, erledigt am 18.11.2026.
 - [ ] **Tablet-Ansicht:** Zettel oder Kacheln.
 - [ ] **Test am Tisch:** Klickdummy einen Abend parallel zum Papier bedienen und Fehltipps zählen.

@@ -58,3 +58,12 @@ Ergebnis 29 von 40 Punkten, Details in `KRITIK-2026-11-17.md`. Entscheidungen da
 
 - Bei der ersten 5 wird nur das Getränk festgehalten. Wer sie geworfen hat, ist unerheblich und wird nicht erfasst.
 - Die zweite 5 bestimmt den Zahler, die dritte den Trinker.
+
+## Start der Entwicklung (18.11.2026)
+
+- **Technik: PWA.** Installierbare Web-App aus HTML und JavaScript, ohne Framework und ohne Build-Schritt. Voraussetzung: Nach der ersten Installation läuft sie komplett offline. Begründung: Der Handy-Klickdummy war schon eine vollständige Web-Seite und ließ sich direkt zur App ausbauen; ein Code für Handy und Tablet. Entschieden vor dem Test am Tisch.
+- **Auslieferung über GitHub Pages**, vorerst. Im kostenlosen Tarif ist das Repo öffentlich, also auch Konzept, Klickdummys und Kurznamen.
+- **Reihenfolge der Mitglieder wie in `daten/stammdaten.json`** (Ulf, Kim, Niggel, Chris C, CV, Benno, Wenzel, Hahn, Reidi, Kuhni, Lomme, Winnie). Die Excel-Listen im Ordner `Grundlage` der Kasse haben eine andere Spaltenfolge; sie gilt nicht.
+- **Abgleich mit der Original-Strafenliste erledigt.** `Strafenzettel 2025 Vorlage.xlsx` und die Monatslisten 2026 stimmen in Namen, Schreibweise (auch „Fussball“), Preisen und Reihenfolge der 17 Vergehen mit `daten/stammdaten.json` überein. Für das spätere Exportformat wichtig: Dort steht „versch. Geldbeträge“ als je eine Zeile pro Betrag (0,25 / 0,50 / 1 / 2 / 3 / 5 / 10 €) mit Anzahl.
+- **Erster Test am Tisch auf einem iPad** (Safari und Chrome), mit dem Handy-Layout hochkant. Das Kachelraster nutzt die volle Breite, Blätter bleiben höchstens 640 px breit und mittig. Die Tablet-Ansicht quer bleibt Stufe 4.
+- **Kein Exportcode, bis das Format mit der Kasse feststeht.** Der Beispiel-Code aus dem Klickdummy ist nicht in der App; nach dem Abschluss gibt es nur die Zusammenfassung für die Gruppe.
