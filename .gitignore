@@ -1,0 +1,14 @@
+# Editor und System
+.DS_Store
+*.swp
+*~
+
+# Impeccable: lokaler Laufzeitzustand
+.impeccable/
+
+# Abhängigkeiten und Build-Ausgaben (je nach gewählter Technik)
+node_modules/
+dist/
+build/
+.gradle/
+local.properties

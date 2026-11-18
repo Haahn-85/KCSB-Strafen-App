@@ -1,0 +1,45 @@
+{
+  "quelle": "KCSB-Kasse, src/kcsb_kasse/stammdaten.py (START_MITGLIEDER, START_KATALOG)",
+  "katalog_gueltig_ab": "2026-01-01",
+  "mitglieder": [
+    { "kurzname": "Ulf", "anzeigename": "Ulf", "zettel_position": 1 },
+    { "kurzname": "Kim", "anzeigename": "Kim", "zettel_position": 2 },
+    { "kurzname": "Niggel", "anzeigename": "Nickel", "zettel_position": 3 },
+    { "kurzname": "Chris C", "anzeigename": "Chris C.", "zettel_position": 4 },
+    { "kurzname": "CV", "anzeigename": "Chris V.", "zettel_position": 5 },
+    { "kurzname": "Benno", "anzeigename": "Benno", "zettel_position": 6 },
+    { "kurzname": "Wenzel", "anzeigename": "Wenzel", "zettel_position": 7 },
+    { "kurzname": "Hahn", "anzeigename": "Hahn", "zettel_position": 8 },
+    { "kurzname": "Reidi", "anzeigename": "Reidi", "zettel_position": 9 },
+    { "kurzname": "Kuhni", "anzeigename": "Kuhni", "zettel_position": 10 },
+    { "kurzname": "Lomme", "anzeigename": "Lomme", "zettel_position": 11 },
+    { "kurzname": "Winnie", "anzeigename": "Winnie", "zettel_position": 12 }
+  ],
+  "vergehen": [
+    { "name": "Pudel", "preis_cent": 25, "sortierung": 1, "blatt": "haeufig" },
+    { "name": "verlorenes Spiel", "preis_cent": 150, "sortierung": 2, "blatt": "spielende" },
+    { "name": "Fussball verloren", "preis_cent": 500, "sortierung": 3, "blatt": "spielende" },
+    { "name": "Fussball zu Null", "preis_cent": 1000, "sortierung": 4, "blatt": "spielende" },
+    { "name": "Gasse", "preis_cent": 50, "sortierung": 5, "blatt": "haeufig" },
+    { "name": "Kackstuhl", "preis_cent": 50, "sortierung": 6, "blatt": "haeufig" },
+    { "name": "Königsmord", "preis_cent": 50, "sortierung": 7, "blatt": "haeufig" },
+    { "name": "Glockenläuten", "preis_cent": 100, "sortierung": 8, "blatt": "haeufig" },
+    { "name": "Alle 9", "preis_cent": 100, "sortierung": 9, "blatt": "haeufig" },
+    { "name": "Kranz Hand", "preis_cent": 100, "sortierung": 10, "blatt": "haeufig" },
+    { "name": "Lustwurf", "preis_cent": 500, "sortierung": 11, "blatt": "weitere" },
+    { "name": "Schnapszahl", "preis_cent": 750, "sortierung": 12, "blatt": "weitere" },
+    { "name": "3 Getränke", "preis_cent": 1000, "sortierung": 13, "blatt": "weitere" },
+    { "name": "übers Seil springen", "preis_cent": 100, "sortierung": 14, "blatt": "haeufig" },
+    { "name": "Handy rumspielen", "preis_cent": 300, "sortierung": 15, "blatt": "weitere" },
+    { "name": "Handy laut", "preis_cent": 5000, "sortierung": 16, "blatt": "weitere" },
+    { "name": "Perle auf der Bahn", "preis_cent": 2000, "sortierung": 17, "blatt": "weitere" }
+  ],
+  "regeln": {
+    "rueckfrage_ab_cent": 500,
+    "einzelwertung_schnelltasten_cent": [25, 50, 100, 200]
+  },
+  "hinweise": {
+    "blatt": "Platz im Personenblatt laut Klickdummy: haeufig = feste Tasten unten in der Daumenzone, weitere = Liste darüber, spielende = am Listenende, normal über die Sammelbuchung „Spielende“. Gestaltungsentscheidung, keine Clubregel.",
+    "abgleich": "Noch nicht mit der Original-Strafenliste im Ordner Grundlage der KCSB-Kasse abgeglichen."
+  }
+}

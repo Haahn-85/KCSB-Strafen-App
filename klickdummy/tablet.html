@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KCSB Strafen-App Klickdummy Tablet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: Querformat. Links der Zettel als Matrix (ein Tipp in die Zelle = ein Strich), rechts eine Leiste mit Schnaps, Verlauf und Spielende */
+  --bg:#100e0e; --flaeche:#1d1a1a; --flaeche2:#2a2626; --linie:#3a3434;
+  --text:#f3eeea; --leise:#a69d96; --rot:#e0263f; --rot-dunkel:#8f1526; --gruen:#3fae6a;
+  --anzeige:"Barlow Condensed","Arial Narrow",sans-serif; --lauf:"Barlow","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:#070606;color:var(--text);font-family:var(--lauf);font-size:16px;display:flex;justify-content:center;align-items:center;padding:16px}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;touch-action:manipulation}
+:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+h2{font-family:var(--anzeige);font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-size:14px;font-weight:600;color:var(--leise);margin:16px 0 8px;letter-spacing:.04em;text-transform:uppercase}
+.muted{color:var(--leise);font-size:14px}
+
+#app{position:relative;width:min(100%,1220px);height:min(100%,800px);background:var(--bg);border:1px solid var(--linie);border-radius:24px;overflow:hidden;display:flex;flex-direction:column}
+@media (max-width:1240px),(max-height:820px){body{padding:0}#app{width:100%;height:100%;border:0;border-radius:0}}
+
+.kopf{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:3px solid var(--rot);background:#000}
+.marke{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.marke b{font-family:var(--anzeige);font-size:26px;letter-spacing:.03em}
+.marke span{font-size:14px;color:var(--leise)}
+.btn{min-height:48px;padding:0 16px;border-radius:12px;background:var(--flaeche2);font-weight:600}
+.btn.ghost{background:none;border:1px solid var(--linie)}
+.btn.rot{background:var(--rot);color:#fff}
+.btn.breit{width:100%;min-height:56px;font-size:18px;margin-top:16px}
+
+.quer{flex:1;display:flex;min-height:0}
+.main{flex:1;overflow:auto;min-width:0}
+.rail{width:320px;flex:none;border-left:1px solid var(--linie);display:flex;flex-direction:column;min-height:0;background:var(--flaeche)}
+
+.matrix{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed}
+.matrix th,.matrix td{border-right:1px solid var(--linie);border-bottom:1px solid var(--linie);padding:0;height:46px}
+.matrix col.c0{width:176px}
+.matrix thead th{position:sticky;top:0;z-index:3;background:#000;font-family:var(--anzeige);font-size:19px;height:44px}
+.matrix thead th:first-child,.matrix tbody th,.matrix tfoot th{position:sticky;left:0;z-index:2;background:var(--flaeche);text-align:left;padding:0 10px;font-weight:500;font-size:14px;line-height:1.15}
+.matrix thead th:first-child{z-index:4;background:#000;font-family:var(--lauf);font-size:13px;color:var(--leise)}
+.matrix th small{display:block;color:var(--leise);font-variant-numeric:tabular-nums;font-size:12px}
+.matrix tbody tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.z{display:block;width:100%;height:100%;min-height:45px;font-family:var(--anzeige);font-size:20px;letter-spacing:.08em;white-space:nowrap;overflow:hidden}
+.z:active{background:var(--linie)}
+.z s{text-decoration-thickness:2px;text-decoration-color:var(--text)}
+.z.klein{font-family:var(--lauf);font-size:13px;letter-spacing:0;font-variant-numeric:tabular-nums;white-space:normal;line-height:1.1}
+.neu{animation:blitz .5s ease-out}
+@keyframes blitz{from{background:var(--rot)}to{background:transparent}}
+@media (prefers-reduced-motion:reduce){.neu,.ov{animation:none!important}}
+tr.r5 th{color:#ff8d9b;font-weight:600}
+tr.r5 td{background:rgba(224,38,63,.10)!important}
+tr.fbz th,tr.fbz .z{color:var(--gruen)}
+tr.fest td{font-family:var(--anzeige);font-size:20px;text-align:center;color:var(--gruen);letter-spacing:.08em}
+.matrix tfoot th,.matrix tfoot td{position:sticky;bottom:0;z-index:2;background:var(--flaeche2);border-top:2px solid var(--rot);text-align:center;font-weight:600;font-size:14px;font-variant-numeric:tabular-nums;height:44px}
+.matrix tfoot th{z-index:4;text-align:left}
+
+.streifen{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:12px;padding:10px 12px;font-size:14px;margin:12px}
+.s5{font-family:var(--anzeige);font-size:20px;width:30px;height:30px;border-radius:8px;background:var(--rot-dunkel);display:grid;place-items:center;flex:none}
+.tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--linie)}
+.tabs button{min-height:48px;font-weight:600;font-size:14px;color:var(--leise);border-bottom:3px solid transparent}
+.tabs button[aria-current="true"]{color:var(--text);border-bottom-color:var(--rot)}
+.rl{flex:1;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+.rail .fuss{padding:12px;border-top:1px solid var(--linie)}
+.rail .fuss .btn{width:100%;min-height:56px;font-size:18px}
+.vz{min-height:48px;border-radius:10px;background:var(--flaeche2);padding:6px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;font-weight:500;font-size:14px;flex:none}
+.vz:active{background:var(--linie)}
+.vz.weg span:first-child{text-decoration:line-through;color:var(--leise)}
+.vl-t{font-variant-numeric:tabular-nums;color:var(--leise);font-size:12px;margin-right:8px}
+.pr{font-size:13px;color:var(--leise);font-variant-numeric:tabular-nums;white-space:nowrap}
+.leer{color:var(--leise);padding:16px 4px;font-size:14px}
+.liste{display:flex;flex-direction:column;gap:6px}
+.liste .vz{min-height:52px;font-size:16px}
+
+.schleier{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:7}
+.ov{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(580px,92%);max-height:90%;overflow-y:auto;background:var(--flaeche);border:1px solid var(--linie);border-radius:20px;padding:20px;z-index:8}
+.ov.rein{animation:ein .15s ease-out}
+@keyframes ein{from{opacity:0}to{opacity:1}}
+.bk{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.zwei{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.zeile{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.raster{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.raster .zeile{margin:0;flex-wrap:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.chip{min-height:48px;padding:0 14px;border-radius:12px;background:var(--flaeche2);font-weight:600;font-variant-numeric:tabular-nums}
+.chip.an{background:var(--rot);color:#fff}
+.chip.sieg.an{background:var(--gruen);color:#04180c}
+.chip.gross{flex:1;text-align:left;font-family:var(--anzeige);font-size:22px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
+input,textarea{width:100%;min-height:48px;border-radius:12px;border:1px solid var(--linie);background:var(--bg);padding:10px 12px}
+.zeile input{flex:1;width:auto;min-width:120px}
+textarea{min-height:96px;font-size:13px;word-break:break-all;resize:none;margin-bottom:8px}
+.ew{display:grid;grid-template-columns:110px 80px 1fr;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--linie)}
+.ew .chips{margin:0;flex-wrap:nowrap}
+.ew b{font-family:var(--anzeige);font-size:22px}
+.kb{font-weight:600;font-variant-numeric:tabular-nums;color:#ff8d9b}
+.betrag{font-family:var(--anzeige);font-size:44px;font-variant-numeric:tabular-nums;margin:4px 0 12px}
+.pruef{list-style:none;padding:0;margin:0 0 8px;display:flex;flex-direction:column;gap:6px}
+.pruef li{background:var(--flaeche2);border-left:4px solid var(--rot);border-radius:8px;padding:10px 12px;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pruef li.ok{border-left-color:var(--gruen)}
+.summen{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.summen td{padding:6px 0;border-bottom:1px solid var(--linie)}
+.summen td:last-child{text-align:right;font-weight:600}
+
+.seg2{display:flex;border:1px solid var(--linie);border-radius:12px;overflow:hidden}
+.seg2 button{min-height:46px;padding:0 14px;font-weight:600;color:var(--leise)}
+.seg2 button[aria-pressed="true"]{background:var(--flaeche2);color:var(--text)}
+.btn.korr-an{background:var(--rot);color:#fff;border-color:var(--rot)}
+.zwei-sp{display:grid;grid-template-columns:290px 1fr;gap:16px;padding:0 16px 16px}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kachel{min-height:66px;border-radius:14px;background:var(--flaeche);padding:8px 12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;text-align:left;border:2px solid transparent}
+.kachel.an,.vt.an{border-color:var(--rot);background:var(--rot-dunkel)}
+.kn{font-family:var(--anzeige);font-size:24px;line-height:1}
+.vt{min-height:62px;border-radius:12px;background:var(--flaeche);padding:8px 12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;text-align:left;font-weight:600;border:2px solid transparent}
+.vt.gruen span:first-child{color:var(--gruen)}
+.rb{flex:1;overflow-y:auto;min-height:0}
+.rk{padding:14px 14px 8px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 12px}
+.slot{border:2px dashed var(--linie);border-radius:12px;padding:8px;min-height:70px;display:flex;flex-direction:column;gap:2px}
+.slot small{font-size:12px;color:var(--leise)}
+.slot b{font-family:var(--anzeige);font-size:22px;line-height:1.1}
+.slot.voll{border-style:solid;background:var(--flaeche2)}
+.slot.dran{border-color:var(--rot);border-style:solid}
+.slot.dran b{color:#ff8d9b;font-size:17px;white-space:nowrap}
+.wer{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 12px}
+.wer .chip{padding:0 6px;font-size:15px;background:var(--bg)}
+.getr{padding:0 12px}
+.getr small{font-size:12px;color:var(--leise);display:block;margin-bottom:6px}
+.chip.klein{min-height:44px;padding:0 10px;font-size:14px;background:var(--bg)}
+.chip.klein.an{background:var(--rot)}
+.lnk{min-height:44px;padding:0 14px;color:var(--leise);font-size:14px;text-decoration:underline;text-align:left}
+.rh{margin:8px 14px 6px}
+.runden{display:flex;flex-direction:column;gap:6px;padding:0 12px 12px}
+.toast{position:absolute;left:16px;bottom:60px;width:min(460px,60%);background:#f3eeea;color:#161313;border-radius:12px;padding:8px 8px 8px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600;font-size:15px;z-index:9}
+.toast button{min-height:44px;padding:0 12px;color:var(--rot-dunkel);font-weight:600}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const M=['Ulf','Kim','Niggel','Chris C','CV','Benno','Wenzel','Hahn','Reidi','Kuhni','Lomme','Winnie'];
+const V=[['Pudel',25],['verlorenes Spiel',150],['Fussball verloren',500],['Fussball zu Null',1000],['Gasse',50],['Kackstuhl',50],['Königsmord',50],['Glockenläuten',100],['Alle 9',100],['Kranz Hand',100],['Lustwurf',500],['Schnapszahl',750],['3 Getränke',1000],['übers Seil springen',100],['Handy rumspielen',300],['Handy laut',5000],['Perle auf der Bahn',2000]];
+const DRINKS=['Korn','Ouzo','Sambuca','Jägermeister','Berliner Luft'];
+const ROLLE=['Schnaps','zahlt','trinkt'];
+const SCHNELL=[25,50,100,200];
+const preis=Object.fromEntries(V);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eur=c=>(c/100).toFixed(2).replace('.',',')+' €';
+let n=0,tt=null,S;
+
+function leer(){return {view:'zettel',selP:null,selV:null,korr:false,people:[...M],present:new Set(),deckel:new Set(),ev:[],essen:{},closed:false,ov:null,toast:null,flash:''}}
+function zeit(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function add(e,t){e.id=++n;e.t=t||zeit();e.c=e.c||0;S.ev.push(e);return e}
+const live=()=>S.ev.filter(e=>!e.del);
+const summe=p=>live().filter(e=>e.p===p).reduce((a,e)=>a+e.c,0);
+const anwesend=()=>S.people.filter(p=>S.present.has(p));
+function gruppen(){const f=live().filter(e=>e.type==='fuenf'),g=[];for(let i=0;i<f.length;i+=3)g.push(f.slice(i,i+3));return g}
+function offen(){const g=gruppen(),l=g[g.length-1];return l&&l.length<3?l:[]}
+function schnapsText(){const o=offen();if(!o.length)return 'Erste 5: Schnaps wählen';if(o.length===1)return o[0].drink+' · nächste 5 zahlt';return o[0].drink+' · zahlt '+o[1].p+' · nächste 5 trinkt'}
+function vib(x){try{if(navigator.vibrate)navigator.vibrate(x)}catch(e){}}
+function toast(txt,ids){S.toast={txt,ids:ids||[]};clearTimeout(tt);tt=setTimeout(()=>{S.toast=null;const el=$('.toast');if(el)el.remove()},5000)}
+const tally=k=>'<s>||||</s> '.repeat(Math.floor(k/5))+'|'.repeat(k%5);
+function evText(e){return e.p+' · '+({strich:e.v,sonder:'Sonderbetrag',tor:'Tor',vorlage:'Vorlage',sieg:'Fußball-Sieg',fuenf:'5 geworfen'}[e.type])}
+function zu(){if(S.closed){toast('Abend ist abgeschlossen. Im Menü wieder öffnen.');return true}return false}
+
+function render(){
+  const m=$('.main'),r=$('.rl'),o=$('.ov'),app=$('#app');
+  const sm=m?[m.scrollTop,m.scrollLeft]:[0,0],sr=r?r.scrollTop:0,so=o?o.scrollTop:0,altO=app.dataset.o;
+  app.innerHTML='<header class="kopf"><div class="marke"><b>KCSB</b><span>Strafenzettel · November 2026'+(S.closed?' · abgeschlossen':'')+'</span></div><span class="muted">'+hinweis()+'</span>'+kopfTasten()+'</header><div class="quer"><main class="main">'+(S.view==='zettel'?matrix():kacheln())+'</main>'+rail()+'</div>'+(S.ov?overlay(altO):'')+(S.toast?toastHtml():'');
+  $('.main').scrollTop=sm[0];$('.main').scrollLeft=sm[1];
+  if($('.rl'))$('.rl').scrollTop=sr;
+  if($('.ov')&&S.ov&&S.ov.k===altO)$('.ov').scrollTop=so;
+  app.dataset.o=S.ov?S.ov.k:'';S.flash='';
+}
+function toastHtml(){return '<div class="toast" role="status"><span>'+esc(S.toast.txt)+'</span>'+(S.toast.ids.length?'<button data-a="undo">Rückgängig</button>':'')+'</div>'}
+
+const label=k=>({tor:'Tor',vorlage:'Vorlage',sonder:'Sonderbetrag',essen:'Essen'}[k]||k);
+const passt=k=>k==='sonder'?e=>e.type==='sonder':k==='tor'||k==='vorlage'?e=>e.type===k:e=>e.type==='strich'&&e.v===k;
+function hinweis(){return S.korr?'Nächster Tipp entfernt einen Strich':S.view==='zettel'?'Tipp in eine Zelle setzt einen Strich':'Person und Vergehen antippen, Reihenfolge egal'}
+function kopfTasten(){return '<div class="seg2">'+[['zettel','Zettel'],['kacheln','Kacheln']].map(([v,l])=>'<button data-a="ansicht" data-v="'+v+'" aria-pressed="'+(S.view===v)+'">'+l+'</button>').join('')+'</div><button class="btn ghost'+(S.korr?' korr-an':'')+'" data-a="korr" aria-pressed="'+S.korr+'">Korrigieren</button><button class="btn ghost" data-a="menu">Menü</button>'}
+function tipp(p,k){
+  if(zu())return;
+  if(k==='essen'){S.korr=false;S.ov={k:'essenEdit',p};return}
+  if(S.korr){
+    S.korr=false;const e=[...live()].reverse().find(e=>e.p===p&&passt(k)(e));
+    if(e){e.del=true;S.flash=p+'|'+k;toast(p+' · '+label(k)+' entfernt')}else toast('Dort gibt es nichts zu entfernen.');
+    return;
+  }
+  if(k==='sonder'){S.ov={k:'sonder',p,c:0};return}
+  if(k==='tor'||k==='vorlage'){const e=add({type:k,p});S.flash=p+'|'+k;vib(30);toast(p+' · '+label(k),[e.id]);return}
+  if(preis[k]>=500){S.ov={k:'frage',p,v:k};return}
+  buche(p,k);
+}
+function matrix(){
+  const ps=anwesend(),L=live(),z=(p,k)=>L.filter(e=>e.p===p&&passt(k)(e)).length;
+  const zelle=(p,k,inhalt,klein)=>'<td><button class="z'+(klein?' klein':'')+(S.flash===p+'|'+k?' neu':'')+'" data-a="zelle" data-p="'+esc(p)+'" data-k="'+esc(k)+'" aria-label="'+esc(label(k)+', '+p)+'">'+inhalt+'</button></td>';
+  let h='<table class="matrix"><colgroup><col class="c0">'+ps.map(()=>'<col>').join('')+'</colgroup><thead><tr><th>Vergehen</th>'+ps.map(p=>'<th>'+esc(p)+'</th>').join('')+'</tr></thead><tbody>';
+  h+=V.map(([v,c])=>'<tr><th>'+esc(v)+'<small>'+eur(c)+'</small></th>'+ps.map(p=>zelle(p,v,tally(z(p,v)))).join('')+'</tr>').join('');
+  h+='<tr><th>Sonderbetrag<small>frei</small></th>'+ps.map(p=>{const s=L.filter(e=>e.p===p&&e.type==='sonder').reduce((a,e)=>a+e.c,0);return zelle(p,'sonder',s?eur(s):'',true)}).join('')+'</tr>';
+  h+='<tr class="fbz fest"><th>Fußball: Sieg<small>über Spielende</small></th>'+ps.map(p=>'<td>'+tally(L.filter(e=>e.p===p&&e.type==='sieg').length)+'</td>').join('')+'</tr>';
+  h+=[['tor','Fußball: Tor'],['vorlage','Fußball: Vorlage']].map(([t,l])=>'<tr class="fbz"><th>'+l+'</th>'+ps.map(p=>zelle(p,t,tally(z(p,t)))).join('')+'</tr>').join('');
+  h+='<tr><th>Essen</th>'+ps.map(p=>zelle(p,'essen',esc(S.essen[p]||''),true)).join('')+'</tr>';
+  h+='</tbody><tfoot><tr><th>Summe</th>'+ps.map(p=>'<td>'+eur(summe(p))+'</td>').join('')+'</tr></tfoot></table>';
+  return h;
+}
+function kacheln(){
+  const ps=anwesend(),L=live(),P=S.selP;
+  const cnt=k=>P?L.filter(e=>e.p===P&&passt(k)(e)).length:0;
+  const vb=(k,l,pr,cls)=>'<button class="vt'+(cls||'')+(S.selV===k?' an':'')+'" data-a="selv" data-k="'+esc(k)+'" aria-pressed="'+(S.selV===k)+'"><span>'+esc(l)+'</span><span class="pr">'+pr+(cnt(k)?' · '+cnt(k)+'×':'')+'</span></button>';
+  return '<div class="zwei-sp"><section><h3>Person</h3><div class="pg">'+
+    ps.map(p=>'<button class="kachel'+(P===p?' an':'')+(S.flash.indexOf(p+'|')===0?' neu':'')+'" data-a="selp" data-p="'+esc(p)+'" aria-pressed="'+(P===p)+'"><span class="kn">'+esc(p)+'</span><span class="kb">'+eur(summe(p))+'</span></button>').join('')+
+    '</div></section><section><h3>Vergehen'+(P?' für '+esc(P):S.selV?': '+esc(label(S.selV))+', jetzt Person wählen':'')+'</h3><div class="vg">'+
+    V.map(([v,c])=>vb(v,v,eur(c))).join('')+vb('sonder','Sonderbetrag','frei')+vb('tor','Tor','Fußball',' gruen')+vb('vorlage','Vorlage','Fußball',' gruen')+vb('essen','Essen',P&&S.essen[P]?esc(S.essen[P]):'Freitext')+
+    '</div></section></div>';
+}
+function rail(){
+  const o=offen(),ps=anwesend(),g=gruppen().filter(x=>x.length===3),hat=live().some(e=>e.type==='fuenf');
+  const wert=i=>!o[i]?'':i===0?o[0].drink:o[i].p;
+  const slot=(i,t)=>'<div class="slot'+(o.length===i?' dran':'')+(o[i]?' voll':'')+'"><small>'+t+'</small><b>'+(o[i]?esc(wert(i)):o.length===i?'nächste 5':'')+'</b></div>';
+  const frage=['Erste 5: Welcher Schnaps?','Zweite 5: Wer zahlt?','Dritte 5: Wer trinkt?'][o.length];
+  let h='<aside class="rail"><div class="rb"><div class="rk"><h2>Schnaps</h2><span class="muted">'+frage+'</span></div><div class="slots">'+slot(0,'1. Schnaps')+slot(1,'2. zahlt')+slot(2,'3. trinkt')+'</div>';
+  if(!o.length)h+='<div class="wer">'+DRINKS.map(d=>'<button class="chip" data-a="fuenfdrink" data-g="'+esc(d)+'">'+esc(d)+'</button>').join('')+'<button class="chip" data-a="drinkneu">+ Anderes</button></div>';
+  else{
+    h+='<div class="wer">'+ps.map(p=>'<button class="chip" data-a="fuenf" data-p="'+esc(p)+'">'+esc(p)+'</button>').join('')+'</div>';
+    h+='<div class="getr"><small>Schnaps ändern</small><div class="chips">'+DRINKS.map(d=>'<button class="chip klein'+(o[0].drink===d?' an':'')+'" data-a="drinknow" data-g="'+esc(d)+'" aria-pressed="'+(o[0].drink===d)+'">'+esc(d)+'</button>').join('')+'<button class="chip klein" data-a="drinkset" data-id="'+o[0].id+'">+ Anderes</button></div></div>';
+  }
+  if(hat)h+='<button class="lnk" data-a="fuenfweg">Letzte 5 zurücknehmen</button>';
+  h+='<h3 class="rh">Fertige Runden</h3><div class="runden">'+(g.length?[...g].reverse().map((x,i)=>'<button class="vz'+(i===0&&S.flash==='runde'?' neu':'')+'" data-a="drinkset" data-id="'+x[0].id+'"><span>'+esc(x[0].drink||'Getränk nachtragen')+'</span><span class="pr">'+esc(x[1].p)+' zahlt · '+esc(x[2].p)+' trinkt</span></button>').join(''):'<p class="leer">Drei Fünfen ergeben eine Runde.</p>')+'</div></div><div class="fuss"><button class="btn rot" data-a="ende">Spielende</button></div></aside>';
+  return h;
+}
+
+function rahmen(titel,body,alt){return '<div class="schleier" data-a="ovzu"></div><section class="ov'+(alt!==S.ov.k?' rein':'')+'" role="dialog" aria-label="'+esc(titel)+'"><div class="bk"><h2>'+esc(titel)+'</h2><button class="btn ghost" data-a="ovzu">Schließen</button></div>'+body+'</section>'}
+function overlay(alt){
+  const o=S.ov,ps=anwesend(),R=(t,b)=>rahmen(t,b,alt);
+  if(o.k==='menu')return R('Menü','<div class="liste"><button class="vz" data-a="start"><span>Anwesenheit und Gäste</span></button><button class="vz" data-a="ab"><span>Abend abschließen</span></button>'+(S.closed?'<button class="vz" data-a="auf"><span>Abend wieder öffnen</span></button>':'')+'<button class="vz" data-a="neu"><span>Neuen Abend beginnen</span></button></div>');
+  if(o.k==='start')return R(o.neu?'Neuer Abend':'Anwesenheit','<p class="muted">Anwesende antippen. Nur sie erscheinen als Spalten.</p><div class="raster">'+S.people.map(p=>'<div class="zeile"><button class="chip gross'+(S.present.has(p)?' an':'')+'" data-a="anw" data-p="'+esc(p)+'" aria-pressed="'+S.present.has(p)+'">'+esc(p)+'</button><button class="chip'+(S.deckel.has(p)?' an':'')+'" data-a="deckel" data-p="'+esc(p)+'" aria-pressed="'+S.deckel.has(p)+'">Deckel</button></div>').join('')+'</div><h3>Gast</h3><div class="zeile"><input id="gast" placeholder="Name des Gastes" autocomplete="off" aria-label="Name des Gastes"><button class="btn" data-a="gast">Hinzufügen</button></div><button class="btn rot breit" data-a="ovzu">Los</button>');
+  if(o.k==='frage')return R('Sicher?','<p>'+esc(o.p)+' · '+esc(o.v)+'</p><div class="betrag">'+eur(preis[o.v])+'</div><div class="zwei"><button class="btn" data-a="ovzu">Abbrechen</button><button class="btn rot" data-a="ja">Strich setzen</button></div>');
+  if(o.k==='drink')return R(o.neu?'Erste 5: Welcher Schnaps?':'Schnaps ändern','<div class="chips">'+DRINKS.map(g=>'<button class="chip" data-a="drink" data-g="'+esc(g)+'">'+esc(g)+'</button>').join('')+'</div><h3>Anderes Getränk</h3><div class="zeile"><input id="neug" placeholder="Getränk eintippen" autocomplete="off" aria-label="Anderes Getränk"><button class="btn rot" data-a="drinkfrei">Übernehmen</button></div><button class="btn breit" data-a="ovzu">Abbrechen</button>');
+  if(o.k==='sonder')return R('Sonderbetrag','<p class="muted">'+esc(o.p)+' · jeder Tipp addiert</p><div class="betrag">'+eur(o.c)+'</div><div class="chips">'+SCHNELL.map(c=>'<button class="chip" data-a="plus" data-c="'+c+'">+ '+eur(c)+'</button>').join('')+'<button class="chip" data-a="null0">0</button></div><button class="btn rot breit" data-a="sonderok">Buchen</button>');
+  if(o.k==='ende'){
+    let h='<div class="seg">'+[['spiel','Verlorenes Spiel'],['fb','Fußball'],['einzel','Einzelwertung']].map(([v,l])=>'<button class="chip'+(o.art===v?' an':'')+'" data-a="art" data-v="'+v+'" aria-pressed="'+(o.art===v)+'">'+l+'</button>').join('')+'</div>';
+    if(o.art==='einzel'){
+      h+=ps.map(p=>'<div class="ew"><b>'+esc(p)+'</b><span class="kb">'+eur(o.b[p]||0)+'</span><div class="chips">'+SCHNELL.map(c=>'<button class="chip" data-a="bp" data-p="'+esc(p)+'" data-c="'+c+'">+'+(c/100).toFixed(2).replace('.',',')+'</button>').join('')+'<button class="chip" data-a="b0" data-p="'+esc(p)+'">0</button></div></div>').join('');
+      return R('Spielende',h+'<button class="btn rot breit" data-a="endeok">Buchen · '+eur(ps.reduce((a,p)=>a+(o.b[p]||0),0))+'</button>');
+    }
+    const v=o.art==='spiel'?'verlorenes Spiel':o.nul?'Fussball zu Null':'Fussball verloren';
+    h+='<h3>Verlierer</h3><div class="chips">'+ps.map(p=>'<button class="chip'+(o.sel.has(p)?' an':'')+'" data-a="sel" data-p="'+esc(p)+'" aria-pressed="'+o.sel.has(p)+'">'+esc(p)+'</button>').join('')+'</div>';
+    if(o.art==='fb'){
+      h+='<button class="chip'+(o.nul?' an':'')+'" data-a="nul" aria-pressed="'+o.nul+'">Zu Null: 10,00 € statt 5,00 €</button>';
+      h+='<h3>Sieger (Vorschlag, abwählbar)</h3><div class="chips">'+ps.filter(p=>!o.sel.has(p)).map(p=>'<button class="chip sieg'+(o.nos.has(p)?'':' an')+'" data-a="nos" data-p="'+esc(p)+'" aria-pressed="'+!o.nos.has(p)+'">'+esc(p)+'</button>').join('')+'</div>';
+    }
+    return R('Spielende',h+'<button class="btn rot breit" data-a="endeok">'+o.sel.size+' Verlierer · je '+eur(preis[v])+' buchen</button>');
+  }
+  if(o.k==='essenEdit'){const g=[...new Set(Object.values(S.essen))];return R('Essen: '+o.p,'<input id="gericht" value="'+esc(S.essen[o.p]||'')+'" placeholder="Gericht" autocomplete="off" aria-label="Gericht">'+(g.length?'<h3>Schon bestellt</h3><div class="chips">'+g.map(x=>'<button class="chip" data-a="gericht" data-g="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div>':'')+'<button class="btn rot breit" data-a="essenok">Speichern</button>')}
+  if(o.k==='ab'){
+    const fehlt=ps.filter(p=>!S.essen[p]),of=offen(),ohne=gruppen().filter(g=>g.length===3&&!g[0].drink).length;
+    let h='<h3>Lückenprüfung</h3><ul class="pruef">';
+    if(fehlt.length)h+='<li><span>Essen fehlt bei '+esc(fehlt.join(', '))+'</span></li>';
+    if(of.length)h+='<li><span>Offener Schnaps-Zyklus ('+of.length+' von 3 Fünfen) verfällt</span></li>';
+    if(ohne)h+='<li><span>'+ohne+' Schnaps-Zeile'+(ohne>1?'n':'')+' ohne Getränk</span></li>';
+    if(!fehlt.length&&!of.length&&!ohne)h+='<li class="ok"><span>Keine Lücken</span></li>';
+    h+='</ul><h3>Strafen pro Person</h3><table class="summen">'+ps.map(p=>'<tr><td>'+esc(p)+'</td><td>'+eur(summe(p))+'</td></tr>').join('')+'<tr><td>Gesamt</td><td>'+eur(ps.reduce((a,p)=>a+summe(p),0))+'</td></tr></table>';
+    if(!S.closed)return R('Abend abschließen',h+'<button class="btn rot breit" data-a="abok">Abschließen und Code erzeugen</button>');
+    return R('Abend abgeschlossen',h+'<h3>Code für die Kasse (Beispiel)</h3><textarea id="code" readonly aria-label="Code für die Kasse">'+esc(code())+'</textarea><button class="btn" data-a="kopie" data-id="code">Code kopieren</button><h3>Zusammenfassung für die Gruppe</h3><textarea id="zus" readonly aria-label="Zusammenfassung" style="word-break:normal;min-height:160px">'+esc(zusammen())+'</textarea><button class="btn" data-a="kopie" data-id="zus">Zusammenfassung kopieren</button>');
+  }
+  return '';
+}
+function code(){
+  const ps=anwesend(),L=live(),cnt={};
+  L.filter(e=>e.type==='strich').forEach(e=>{const k=e.p+'|'+e.v;cnt[k]=(cnt[k]||0)+1});
+  const o={m:'2026-11',a:ps,d:ps.filter(p=>S.deckel.has(p)),s:Object.entries(cnt).map(([k,c])=>[...k.split('|'),c]),g:L.filter(e=>e.type==='sonder').map(e=>[e.p,e.c]),f:ps.map(p=>[p,...['sieg','tor','vorlage'].map(t=>L.filter(e=>e.type===t&&e.p===p).length)]).filter(r=>r[1]+r[2]+r[3]>0),sn:gruppen().filter(g=>g.length===3).map(g=>[g[0].drink||'',g[1].p,g[2].p]),e:S.essen};
+  const b=btoa(unescape(encodeURIComponent(JSON.stringify(o))));let c=0;for(const ch of b)c=(c*31+ch.charCodeAt(0))%65536;
+  return 'KCSB1.'+b+'.'+c.toString(16).padStart(4,'0');
+}
+function zusammen(){
+  const ps=anwesend(),g=gruppen().filter(x=>x.length===3);
+  let t='KCSB · Kegelabend November 2026\n\nStrafen:\n'+ps.map(p=>p+': '+eur(summe(p))).join('\n')+'\nGesamt: '+eur(ps.reduce((a,p)=>a+summe(p),0));
+  if(g.length)t+='\n\nSchnaps:\n'+g.map(x=>(x[0].drink||'?')+' · zahlt '+x[1].p+' · trinkt '+x[2].p).join('\n');
+  return t;
+}
+
+function buche(p,v){const e=add({type:'strich',p,v,c:preis[v]});S.flash=p+'|'+v;vib(30);toast(p+' · '+v+' · '+eur(e.c),[e.id])}
+const tog=(s,p)=>{s.has(p)?s.delete(p):s.add(p)};
+const A={
+  ansicht:d=>{S.view=d.v;S.selP=S.selV=null},
+  korr:()=>{S.korr=!S.korr},
+  zelle:d=>tipp(d.p,d.k),
+  selp:d=>{if(S.selV){const k=S.selV;S.selV=S.selP=null;tipp(d.p,k)}else S.selP=S.selP===d.p?null:d.p},
+  selv:d=>{if(S.selP){const q=S.selP;S.selP=S.selV=null;tipp(q,d.k)}else S.selV=S.selV===d.k?null:d.k},
+  fuenfweg:()=>{const e=[...live()].reverse().find(x=>x.type==='fuenf');if(e)e.del=true},
+  drinknow:d=>{const o=offen();if(o[0])o[0].drink=d.g},
+  fuenfdrink:d=>{if(zu())return;const e=add({type:'fuenf',p:''});e.drink=d.g;vib(30);toast('5 · Schnaps: '+d.g+' · nächste 5 zahlt',[e.id])},
+  drinkneu:()=>{if(zu())return;S.ov={k:'drink',neu:true}},
+  menu:()=>{S.ov={k:'menu'}},
+  ovzu:()=>{S.ov=null},
+  ja:()=>{const o=S.ov;S.ov=null;buche(o.p,o.v)},
+  fuenf:d=>{if(zu())return;const st=offen().length;if(!st)return;const e=add({type:'fuenf',p:d.p});vib(30);if(st===2)S.flash='runde';toast(d.p+' · 5 geworfen · '+ROLLE[st],[e.id])},
+  drink:d=>{if(!d.g){S.ov=null;return}if(S.ov.neu){S.ov=null;return A.fuenfdrink(d)}const e=S.ev.find(x=>x.id===S.ov.id);if(e)e.drink=d.g;S.ov=null},
+  drinkfrei:()=>{const v=$('#neug').value.trim();if(!v)return 'nr';if(!DRINKS.some(x=>x.toLowerCase()===v.toLowerCase()))DRINKS.push(v);return A.drink({g:DRINKS.find(x=>x.toLowerCase()===v.toLowerCase())})},
+  drinkset:d=>{S.ov={k:'drink',id:+d.id}},
+  plus:d=>{S.ov.c+=+d.c},
+  null0:()=>{S.ov.c=0},
+  sonderok:()=>{const o=S.ov;S.ov=null;if(o.c>0){const e=add({type:'sonder',p:o.p,c:o.c});S.flash=o.p+'|sonder';vib(30);toast(o.p+' · Sonderbetrag · '+eur(o.c),[e.id])}},
+  undo:()=>{S.toast.ids.forEach(id=>{const e=S.ev.find(x=>x.id===id);if(e)e.del=true});S.toast=null},
+  ende:()=>{if(zu())return;S.ov={k:'ende',art:'spiel',sel:new Set(),nul:false,nos:new Set(),b:{}}},
+  art:d=>{S.ov.art=d.v},
+  sel:d=>tog(S.ov.sel,d.p),
+  nos:d=>tog(S.ov.nos,d.p),
+  nul:()=>{S.ov.nul=!S.ov.nul},
+  bp:d=>{S.ov.b[d.p]=(S.ov.b[d.p]||0)+ +d.c},
+  b0:d=>{S.ov.b[d.p]=0},
+  endeok:()=>{
+    const o=S.ov,ids=[],ps=anwesend();let txt;
+    if(o.art==='einzel'){
+      if(!ps.some(p=>o.b[p]>0)){toast('Noch kein Betrag eingetragen.');return}
+      ps.forEach(p=>{if(o.b[p]>0)ids.push(add({type:'sonder',p,c:o.b[p]}).id)});txt='Einzelwertung · '+ids.length+' Personen';
+    }else{
+      if(!o.sel.size){toast('Noch kein Verlierer ausgewählt.');return}
+      const v=o.art==='spiel'?'verlorenes Spiel':o.nul?'Fussball zu Null':'Fussball verloren';
+      o.sel.forEach(p=>ids.push(add({type:'strich',p,v,c:preis[v]}).id));
+      if(o.art==='fb')ps.forEach(p=>{if(!o.sel.has(p)&&!o.nos.has(p))ids.push(add({type:'sieg',p}).id)});
+      txt=v+' · '+o.sel.size+' Verlierer';
+    }
+    S.ov=null;vib([30,60,30]);toast(txt,ids);
+  },
+  start:()=>{S.ov={k:'start'}},
+  anw:d=>tog(S.present,d.p),
+  deckel:d=>tog(S.deckel,d.p),
+  gast:()=>{const v=$('#gast').value.trim();if(v&&!S.people.includes(v)){S.people.push(v);S.present.add(v)}},
+  gericht:d=>{$('#gericht').value=d.g;return 'nr'},
+  essenok:()=>{const v=$('#gericht').value.trim(),p=S.ov.p;if(v)S.essen[p]=v;else delete S.essen[p];S.ov=null},
+  ab:()=>{S.ov={k:'ab'}},
+  abok:()=>{S.closed=true},
+  auf:()=>{S.closed=false;S.ov=null;toast('Abend wieder geöffnet. Beim Abschluss entsteht ein neuer Code.')},
+  kopie:d=>{
+    const t=$('#'+d.id).value,ok=()=>{toast('Kopiert.');render()},nein=()=>{toast('Kopieren hier nicht möglich. Text bitte markieren.');render()};
+    try{navigator.clipboard.writeText(t).then(ok,nein)}catch(e){nein()}
+    return 'nr';
+  },
+  neu:()=>{S=leer();S.ov={k:'start',neu:true}}
+};
+document.addEventListener('click',ev=>{
+  const el=ev.target.closest('[data-a]');if(!el)return;
+  if(A[el.dataset.a](el.dataset)!=='nr')render();
+});
+
+// Beispielabend, damit der Dummy in einem realistischen Zustand startet
+S=leer();
+['Ulf','Kim','Niggel','Chris C','CV','Benno','Hahn','Reidi','Kuhni'].forEach(p=>S.present.add(p));
+['Ulf','Kim','Benno','Hahn'].forEach(p=>S.deckel.add(p));
+[['Benno','Pudel'],['Ulf','Pudel'],['Kim','Gasse'],['Benno','Pudel'],['',5,'Korn'],['CV','Königsmord'],['Hahn','Pudel'],['Ulf',5],['Reidi','Alle 9'],['Benno','Pudel'],['Niggel',5],['Hahn','Pudel'],['Kuhni','Kackstuhl'],['Chris C','Pudel'],['Benno','Pudel'],['Benno','Pudel'],['',5,'Ouzo'],['Niggel','Glockenläuten']].forEach((x,i)=>{
+  const t='20:'+String(4+i*3).padStart(2,'0');
+  if(x[1]===5){const e=add({type:'fuenf',p:x[0]},t);if(x[2])e.drink=x[2]}else add({type:'strich',p:x[0],v:x[1],c:preis[x[1]]},t);
+});
+S.essen={Ulf:'Schnitzel',Kim:'Schnitzel',Benno:'Currywurst'};
+render();
+</script>
+</body>
+</html>

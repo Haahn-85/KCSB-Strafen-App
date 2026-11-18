@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KCSB Strafen-App Klickdummy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: Handy hochkant. Kopf oben, Inhalt scrollt, Aktionen und Navigation in der Daumenzone.
+     Blätter fahren von unten hoch; was am häufigsten getippt wird, liegt in ihrem festen unteren Teil. */
+  --bg:#100e0e; --flaeche:#1b1717; --kachel:#2a2424; --kachel-rand:#6b605c; --flaeche2:#332c2c; --linie:#3d3535;
+  --text:#f3eeea; --leise:#b0a69f; --rot:#c8102e; --rot-tief:#5a0a17; --rosa:#ff9aa7; --gruen:#46b874; --gruen-tief:#12301f;
+  --anzeige:"Barlow Condensed","Arial Narrow",sans-serif; --lauf:"Barlow","Helvetica Neue",Arial,sans-serif;
+  --r-s:10px; --r-m:14px; --r-l:22px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;scrollbar-color:var(--linie) transparent;scrollbar-width:thin}
+html,body{height:100%;margin:0}
+body{background:#070606;color:var(--text);font-family:var(--lauf);font-size:16px;line-height:1.35;display:flex;justify-content:center;align-items:center;gap:40px;padding:16px}
+::selection{background:var(--rot);color:#fff}
+button,input,textarea{font:inherit;color:inherit}
+input,textarea{caret-color:var(--rosa);accent-color:var(--rot)}
+button{cursor:pointer;border:0;background:none;touch-action:manipulation}
+button:disabled{cursor:default}
+:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.titel:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+h2{font-family:var(--anzeige);font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h3{font-size:14px;font-weight:600;color:var(--leise);margin:20px 0 8px;letter-spacing:.04em;text-transform:uppercase}
+.inhalt>h3:first-child{margin-top:4px}
+p{margin:0}
+.leise{color:var(--leise);font-size:14px}
+
+.neben{max-width:300px;color:var(--leise);font-size:15px;line-height:1.5}
+.neben h1{font-family:var(--anzeige);color:var(--text);font-size:34px;line-height:1.05;margin:0 0 12px;text-wrap:balance}
+.neben ol{padding-left:20px;margin:12px 0}
+.neben li{margin-bottom:6px}
+.neben b{color:var(--text);font-weight:600}
+
+#app{position:relative;width:412px;height:min(100%,880px);background:var(--bg);border:1px solid var(--linie);border-radius:28px;overflow:hidden;display:flex;flex-direction:column;flex:none}
+@media (max-width:900px){.neben{display:none}}
+@media (max-width:500px){body{padding:0}#app{width:100%;height:100%;border:0;border-radius:0}}
+
+.kopf{display:flex;align-items:center;gap:10px;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));border-bottom:3px solid var(--rot);background:#000;flex:none}
+.marke{display:flex;flex-direction:column;line-height:1.1;margin-right:auto;min-width:0}
+.marke span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.marke b{font-family:var(--anzeige);font-size:24px;letter-spacing:.03em}
+.marke span{font-size:14px;color:var(--leise)}
+.pill{font-size:14px;font-weight:600;padding:6px 10px;border-radius:999px;white-space:nowrap;flex:none}
+.pill.fb{background:var(--gruen);color:#04180c}
+.banner{display:grid;grid-template-columns:1fr 1fr;gap:10px 8px;padding:12px 16px;background:var(--rot-tief);flex:none}
+.banner span{grid-column:1/-1;display:flex;flex-direction:column}
+.banner small{color:#f0c9cf;font-size:14px}
+
+.btn{min-height:48px;padding:0 14px;border-radius:12px;background:var(--flaeche2);font-weight:600}
+.btn.ghost{background:none;border:1px solid var(--kachel-rand)}
+.btn.rot{background:var(--rot);color:#fff}
+.btn.gruen{background:var(--gruen);color:#04180c}
+.btn.an{background:var(--text);color:#161313}
+.btn:disabled{background:var(--flaeche2);color:var(--leise);border-color:transparent}
+.btn.breit{width:100%;min-height:52px;font-size:17px}
+.btn:active:not(:disabled),.vt:active,.vz:active:not(:disabled),.chip:active:not(:disabled),.kachel:active,.pk:active,.minus:active{filter:brightness(1.3)}
+
+.main{flex:1;overflow-y:auto;padding:12px 16px 16px;min-height:0}
+.main.fix{overflow:hidden;display:flex;flex-direction:column;padding-bottom:8px}
+
+.streifen{width:100%;display:flex;align-items:stretch;gap:12px;background:var(--flaeche);border:1px solid var(--kachel-rand);border-radius:var(--r-m);padding:10px 12px;margin-bottom:12px;text-align:left}
+.streifen:disabled{opacity:.55}
+.s5{font-family:var(--anzeige);font-size:22px;width:36px;border-radius:10px;background:var(--rot);color:#fff;display:grid;place-items:center;flex:none}
+.sls{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:4px 8px;min-width:0}
+.sl{display:flex;flex-direction:column;min-width:0}
+.sl small{font-size:14px;color:var(--leise)}
+.sl b{font-family:var(--anzeige);font-size:20px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sl b.offen{color:var(--leise)}
+.sl.dran b{color:var(--rosa)}
+.drink-z{grid-column:1/-1;font-size:14px;color:var(--leise)}
+.drink-z b{color:var(--text);font-weight:600}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kachel{min-height:88px;border-radius:var(--r-m);background:var(--kachel);border:1px solid var(--kachel-rand);padding:10px 12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;text-align:left;min-width:0;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.kn{font-family:var(--anzeige);font-size:24px;line-height:1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ks{font-size:14px;color:var(--leise)}
+.kb{font-weight:600;font-variant-numeric:tabular-nums;color:var(--rosa)}
+.kachel.plus{border-style:dashed;background:none;color:var(--leise);font-size:15px;justify-content:center}
+.gesperrt .kachel{background:transparent}
+.hinweis{font-size:14px;color:var(--leise);margin-top:12px}
+
+.dock{position:relative;flex:none}
+.akt{display:flex;gap:8px;padding:8px 16px;border-top:1px solid var(--linie);background:var(--bg)}
+.akt .btn{flex:1;min-height:52px}
+.nav{display:grid;grid-template-columns:repeat(3,1fr);background:#000;border-top:1px solid var(--linie);padding-bottom:env(safe-area-inset-bottom)}
+.nav button{min-height:60px;font-size:15px;font-weight:600;color:var(--leise);border-top:3px solid transparent}
+.nav button[aria-current="page"]{color:var(--text);border-top-color:var(--rot)}
+.toast{position:absolute;left:12px;right:12px;bottom:calc(100% + 12px);background:var(--text);color:#161313;border-radius:12px;padding:6px 6px 6px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:4}
+.toast button{min-height:44px;padding:0 12px;color:var(--rot);font-weight:700;flex:none}
+
+.schleier{position:absolute;inset:0;background:rgba(0,0,0,.62);z-index:5}
+.schleier.ov-s{z-index:7}
+.ebene{position:absolute;left:0;right:0;bottom:0;max-height:calc(100% - 40px);display:flex;flex-direction:column;background:var(--flaeche);border-radius:var(--r-l) var(--r-l) 0 0;z-index:6;box-shadow:0 -12px 40px rgba(0,0,0,.45)}
+.ebene.blatt{height:calc(100% - 40px)}
+.ebene.blatt.lesen{height:auto}
+.ebene.ov{z-index:8}
+.ebene.zurueck{transition:transform .2s cubic-bezier(.2,.8,.2,1)}
+.rein{animation:hoch .24s cubic-bezier(.16,1,.3,1)}
+@keyframes hoch{from{transform:translateY(30%)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.rein{animation:none}.ebene.zurueck{transition:none}}
+.griff{padding:8px 16px 10px;touch-action:none;cursor:grab;flex:none}
+.henkel{display:block;width:40px;height:5px;border-radius:3px;background:var(--kachel-rand);margin:0 auto 10px}
+.inhalt{flex:1;overflow-y:auto;padding:0 16px 16px;min-height:0;overscroll-behavior:contain}
+.fuss{flex:none;padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--linie);display:flex;flex-direction:column;gap:8px;background:var(--flaeche)}
+
+.bk{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.summe{font-family:var(--anzeige);font-size:26px;color:var(--rosa);font-variant-numeric:tabular-nums}
+.modus{margin-top:4px;font-size:14px;color:var(--rosa)}
+.letzte{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--flaeche2);border-radius:10px;padding:4px 4px 4px 12px;font-size:15px;min-height:52px}
+.letzte button{min-height:44px;padding:0 12px;font-weight:700;color:var(--rosa);flex:none}
+
+.hl{list-style:none;margin:0;padding:0}
+.hl li{display:grid;grid-template-columns:36px minmax(0,1fr) auto 48px;align-items:center;gap:8px;min-height:52px;border-bottom:1px solid var(--linie)}
+.hl.lesen li{grid-template-columns:36px minmax(0,1fr) auto}
+.hn{font-family:var(--anzeige);font-size:20px;color:var(--leise);font-variant-numeric:tabular-nums}
+.hb{font-variant-numeric:tabular-nums;color:var(--leise);font-size:15px}
+.minus{width:48px;height:44px;border-radius:10px;background:var(--flaeche2);display:grid;place-items:center}
+.leer-s{color:var(--leise);font-size:15px;padding:6px 0}
+
+.zwei{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.zwei.weit-r{grid-template-columns:1fr 2fr}
+.drei{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.drei .btn{padding:0 6px;font-size:15px}
+.vt{min-height:58px;border-radius:12px;background:var(--kachel);border:1px solid var(--kachel-rand);padding:6px 12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;text-align:left;font-weight:600;line-height:1.2}
+.vt.gruen{background:var(--gruen);border-color:var(--gruen);color:#04180c;font-size:19px;align-items:center}
+.pr{font-size:14px;font-weight:500;color:var(--leise);font-variant-numeric:tabular-nums}
+.liste{display:flex;flex-direction:column;gap:6px}
+.vz{min-height:52px;border-radius:12px;background:var(--flaeche2);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;font-weight:500;width:100%}
+.vz:disabled{background:var(--flaeche)}
+.vz .pr{flex:none}
+.gefahr{margin-top:20px;padding-top:12px;border-top:1px solid var(--linie)}
+.rosatext{color:var(--rosa)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:48px;padding:0 14px;border-radius:12px;background:var(--flaeche2);font-weight:600;font-variant-numeric:tabular-nums}
+.chip.an{background:var(--rot);color:#fff}
+.chip.sieg.an{background:var(--gruen);color:#04180c}
+.chip.deckel.an{background:var(--text);color:#161313}
+.chip:disabled{opacity:.4}
+.chip.gross{flex:1;text-align:left;font-family:var(--anzeige);font-size:22px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zeile{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg .chip{padding:0 6px;font-size:15px}
+input,textarea{width:100%;min-height:48px;border-radius:12px;border:1px solid var(--kachel-rand);background:var(--bg);padding:10px 12px;font-size:16px}
+.zeile input{flex:1;width:auto;min-width:0}
+textarea{min-height:110px;font-size:14px;word-break:break-all;resize:none;margin-top:8px}
+textarea.text{word-break:normal;min-height:180px}
+.lnk{min-height:44px;padding:0 2px;color:var(--leise);font-size:15px;text-decoration:underline;text-underline-offset:3px;margin-top:8px}
+details summary{min-height:44px;display:flex;align-items:center;color:var(--leise);cursor:pointer}
+
+.ew{display:grid;grid-template-columns:minmax(64px,1fr) auto;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--linie)}
+.ew-n{display:flex;flex-direction:column;min-width:0}
+.ew-n b{font-family:var(--anzeige);font-size:21px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ew-n span{font-size:14px;font-variant-numeric:tabular-nums;color:var(--leise)}
+.ew-n span.kb{color:var(--rosa)}
+.ew-c{display:flex;gap:6px}
+.ew-c .chip{min-width:52px;padding:0 6px;font-size:15px}
+.ew-c .c0{min-width:48px;background:none;border:1px solid var(--kachel-rand)}
+
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot{border:1px dashed var(--kachel-rand);border-radius:12px;padding:8px 10px;min-height:68px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.slot small{font-size:14px;color:var(--leise)}
+.slot b{font-family:var(--anzeige);font-size:22px;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot.voll{border-style:solid;background:var(--kachel)}
+.slot.dran{border:2px solid var(--rot)}
+.slot.dran b{color:var(--rosa);font-size:18px}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pk{min-height:56px;border-radius:12px;background:var(--kachel);border:1px solid var(--kachel-rand);font-family:var(--anzeige);font-size:22px;padding:0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.runde-akt{background:var(--flaeche);border:1px solid var(--kachel-rand);border-radius:var(--r-m);padding:12px}
+.runde-akt .btn{margin-top:12px}
+
+.pruef{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+.pruef li{background:var(--flaeche2);border-radius:10px;padding:6px 6px 6px 12px;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:56px}
+.pruef li.warn{background:#3d1419}
+.pruef li.ok{background:var(--gruen-tief)}
+.pruef .btn{flex:none}
+.betrag{font-family:var(--anzeige);font-size:44px;font-variant-numeric:tabular-nums;line-height:1.05}
+.gesamt{padding:4px 0 4px}
+.gesamt small{color:var(--leise);font-size:14px}
+.summen{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:8px}
+.summen td{padding:9px 0;border-bottom:1px solid var(--linie)}
+.summen td:last-child{text-align:right;font-weight:600}
+.summen tr.ges td{border-bottom:0;font-weight:700}
+.hinweis-f{background:#3d1419;border-radius:10px;padding:10px 12px;font-size:15px;margin-top:8px}
+
+.zwrap{flex:1;min-height:0;overflow:auto;border-radius:12px;border:1px solid var(--linie);overscroll-behavior:contain}
+.zettel{border-collapse:separate;border-spacing:0;font-size:14px;white-space:nowrap}
+.zettel th,.zettel td{border-right:1px solid var(--linie);border-bottom:1px solid var(--linie);padding:6px 8px;text-align:center;min-width:64px;background:var(--bg)}
+.zettel td{font-family:var(--anzeige);font-size:17px;letter-spacing:.08em}
+.zettel s{text-decoration-thickness:2px;text-decoration-color:var(--text)}
+.zettel small{display:block;color:var(--leise);font-variant-numeric:tabular-nums;font-weight:500}
+.zettel thead th,.zettel thead td{position:sticky;z-index:2}
+.zettel .r1 th{top:0;height:46px;background:#000;padding:0}
+.zettel .r2 th,.zettel .r2 td{top:46px;background:var(--flaeche2);font-family:var(--lauf);font-size:14px;letter-spacing:0;font-weight:600;font-variant-numeric:tabular-nums;color:var(--rosa)}
+.zettel tbody th{position:sticky;left:0;z-index:1;background:var(--flaeche);text-align:left;font-weight:500;min-width:136px}
+.zettel .ecke{position:sticky;left:0;z-index:3;text-align:left;min-width:136px}
+.zettel .r1 .ecke{padding:0 8px;color:var(--leise);font-weight:500;background:#000}
+.zettel .r2 .ecke{color:var(--text);background:var(--flaeche2)}
+.kopfbtn{width:100%;height:46px;font-family:var(--anzeige);font-size:18px;padding:0 8px;text-decoration:underline;text-decoration-color:var(--kachel-rand);text-underline-offset:4px}
+.zettel .fbz td{color:var(--gruen)}
+.zettel .klar td{font-family:var(--lauf);font-size:14px;letter-spacing:0}
+</style>
+</head>
+<body>
+<aside class="neben">
+  <h1>KCSB Strafen-App, Klickdummy</h1>
+  <p>Ein Beispielabend läuft bereits. Nichts wird gespeichert; Neuladen setzt alles zurück.</p>
+  <ol>
+    <li><b>Strich:</b> Name tippen, Vergehen tippen.</li>
+    <li><b>Mehrere Striche:</b> Name lang drücken oder im Blatt „Offen lassen“.</li>
+    <li><b>Korrigieren:</b> Name tippen, unter „Heute“ einen Eintrag entfernen.</li>
+    <li><b>Schnaps:</b> den 5er-Streifen tippen. Erste 5: Getränk wählen, zweite 5: Zahler, dritte 5: Trinker.</li>
+    <li><b>Fußball:</b> starten, Tore tippen, dann „Spielende“.</li>
+    <li><b>Abschluss:</b> Menü, „Abend abschließen“.</li>
+  </ol>
+  <p>Blätter schließen: nach unten wischen, Zurück oder Esc. Auf dem Handy füllt der Dummy den ganzen Bildschirm.</p>
+</aside>
+<div id="app"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const M=['Ulf','Kim','Niggel','Chris C','CV','Benno','Wenzel','Hahn','Reidi','Kuhni','Lomme','Winnie'];
+const V=[['Pudel',25],['verlorenes Spiel',150],['Fussball verloren',500],['Fussball zu Null',1000],['Gasse',50],['Kackstuhl',50],['Königsmord',50],['Glockenläuten',100],['Alle 9',100],['Kranz Hand',100],['Lustwurf',500],['Schnapszahl',750],['3 Getränke',1000],['übers Seil springen',100],['Handy rumspielen',300],['Handy laut',5000],['Perle auf der Bahn',2000]];
+const HAEUFIG=['Pudel','Gasse','Kackstuhl','Königsmord','Glockenläuten','Alle 9','Kranz Hand','übers Seil springen'];
+const SPIEL=['verlorenes Spiel','Fussball verloren','Fussball zu Null'];
+const WEITERE=V.map(x=>x[0]).filter(v=>!HAEUFIG.includes(v)&&!SPIEL.includes(v));
+const SCHNELL=[25,50,100,200];
+const preis=Object.fromEntries(V);
+const MINUS='<svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M4.5 10h11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eur=c=>(c/100).toFixed(2).replace('.',',')+' €';
+const kurz=c=>c%100?(c/100).toFixed(2).replace('.',','):String(c/100);
+let n=0,tt=null,lpT=null,lp=false,hist=0,histOk=true,drag=null,S;
+
+function leer(){return {view:'strafen',people:[...M],gaeste:new Set(),present:new Set(),deckel:new Set(),ev:[],runde:{drink:'',zahlt:null},runden:[],drinks:['Korn','Ouzo','Sambuca','Jägermeister','Berliner Luft'],fb:false,essen:{},closed:false,sheet:null,sticky:false,letzte:null,ov:null,toast:null,fokus:false,neu:null,kopiert:null,kopierFehler:null}}
+let uhr=21*60+2;
+function zeit(){uhr++;return String(Math.floor(uhr/60)%24).padStart(2,'0')+':'+String(uhr%60).padStart(2,'0')}
+function add(e,t){e.id=++n;e.t=t||zeit();e.c=e.c||0;S.ev.push(e);return e}
+const live=()=>S.ev.filter(e=>!e.del);
+const summe=p=>live().filter(e=>e.p===p).reduce((a,e)=>a+e.c,0);
+const striche=p=>live().filter(e=>e.p===p&&e.type==='strich').length;
+const anwesend=()=>S.people.filter(p=>S.present.has(p));
+const hatEintraege=p=>S.ev.some(e=>e.p===p&&!e.del)||S.runden.some(r=>r.zahlt===p||r.trinkt===p)||S.runde.zahlt===p;
+const naechste=()=>!S.runde.drink?0:!S.runde.zahlt?1:2;
+const tally=k=>'<s>||||</s> '.repeat(Math.floor(k/5))+'|'.repeat(k%5);
+function name(e){return {strich:e.v,sonder:'Sonderbetrag '+eur(e.c),tor:'Tor',vorlage:'Vorlage',sieg:'Fußball-Sieg'}[e.type]}
+function vib(x){try{if(navigator.vibrate)navigator.vibrate(x)}catch(e){}}
+function ansage(t){const l=$('#live');if(!l)return;l.textContent='';setTimeout(()=>{l.textContent=t},30)}
+function toast(txt,undo){S.toast={txt,undo:undo||null};ansage(txt);clearTimeout(tt);tt=setTimeout(()=>{S.toast=null;const el=$('.toast');if(el)el.remove()},5000)}
+function rueck(ops){(ops||[]).forEach(u=>{
+  if(u.typ==='del')u.ids.forEach(id=>{const e=S.ev.find(x=>x.id===id);if(e)e.del=true});
+  if(u.typ==='undel')u.ids.forEach(id=>{const e=S.ev.find(x=>x.id===id);if(e)e.del=false});
+  if(u.typ==='schnaps'){const s=JSON.parse(u.snap);S.runde=s.r;S.runden=s.rs}
+  if(u.typ==='fb')S.fb=u.wert;
+})}
+const schnapsSnap=()=>JSON.stringify({r:S.runde,rs:S.runden});
+function oeffneSheet(p,sticky){S.sheet=p;S.sticky=!!sticky;S.letzte=null;S.toast=null;S.fokus=true;S.neu='sheet'}
+function oeffneOv(o){S.ov=o;S.toast=null;S.fokus=true;S.neu='ov';S.kopiert=null;S.kopierFehler=null}
+function schliesseOben(){if(S.ov)S.ov=null;else if(S.sheet){S.sheet=null;S.sticky=false;S.letzte=null}}
+function gebucht(p,txt,ids){
+  const undo=[{typ:'del',ids}];
+  if(S.sheet===p&&S.sticky){S.letzte={p,txt,undo};ansage(p+' · '+txt)}
+  else{if(S.sheet===p){S.sheet=null;S.letzte=null}toast(p+' · '+txt,undo)}
+}
+function buche(p,v){const e=add({type:'strich',p,v,c:preis[v]});vib(30);gebucht(p,v+' · '+eur(e.c),[e.id])}
+function ziel(z){return z==='aktuell'?S.runde:S.runden.find(r=>r.id===+z)}
+
+function render(){
+  const app=$('#app'),m=$('.main'),z=$('.zwrap'),ib=$('.blatt .inhalt'),io=$('.ov .inhalt');
+  const pos={m:m?m.scrollTop:0,zt:z?z.scrollTop:0,zl:z?z.scrollLeft:0,ib:ib?ib.scrollTop:0,io:io?io.scrollTop:0};
+  const altV=app.dataset.v,altO=app.dataset.o,altS=app.dataset.s,okey=S.ov?S.ov.k+(S.ov.id||''):'';
+  const ebene=!!(S.sheet||S.ov),inert=ebene?' inert':'';
+  const views={strafen:vStrafen,schnaps:vSchnaps,zettel:vZettel};
+  app.innerHTML='<div class="vorne"'+inert+' style="display:contents">'+kopf()+banner()+'<main class="main'+(S.view==='zettel'?' fix':'')+'">'+views[S.view]()+'</main><div class="dock">'+(S.toast&&!ebene?toastHtml():'')+(S.view==='strafen'&&!S.closed?aktionen():'')+nav()+'</div></div>'+(S.sheet?blatt():'')+(S.ov?overlay():'');
+  if(altV===S.view){const m2=$('.main');if(m2)m2.scrollTop=pos.m;const z2=$('.zwrap');if(z2){z2.scrollTop=pos.zt;z2.scrollLeft=pos.zl}}
+  if(S.sheet&&altS===S.sheet&&S.neu!=='sheet'){const e=$('.blatt .inhalt');if(e)e.scrollTop=pos.ib}
+  if(S.ov&&altO===okey&&S.neu!=='ov'){const e=$('.ov .inhalt');if(e)e.scrollTop=pos.io}
+  app.dataset.v=S.view;app.dataset.o=okey;app.dataset.s=S.sheet||'';
+  if(S.fokus){const t=document.querySelectorAll('.ebene .titel');if(t.length)t[t.length-1].focus({preventScroll:true});S.fokus=false}
+  S.neu=null;
+  if(histOk&&ebene&&!hist){try{history.pushState({kcsb:1},'');hist=1}catch(e){histOk=false}}
+}
+function kopf(){return '<header class="kopf"><div class="marke"><b>KCSB</b><span>November 2026</span></div>'+(S.fb?'<span class="pill fb">Fußball läuft</span>':'')+'<button class="btn ghost" data-a="menu">Menü</button></header>'}
+function banner(){return S.closed?'<div class="banner" role="status"><span><b>Abend abgeschlossen</b><small>Änderungen sind gesperrt.</small></span><button class="btn" data-a="ergebnis">Ergebnis</button><button class="btn ghost" data-a="auf">Wieder öffnen</button></div>':''}
+function nav(){return '<nav class="nav" aria-label="Bereiche">'+[['strafen','Strafen'],['schnaps','Schnaps'],['zettel','Zettel']].map(([v,l])=>'<button data-a="view" data-v="'+v+'"'+(S.view===v?' aria-current="page"':'')+'>'+l+'</button>').join('')+'</nav>'}
+function aktionen(){return '<div class="akt">'+(S.fb?'':'<button class="btn gruen" data-a="fbstart">Fußball starten</button>')+'<button class="btn rot" data-a="ende">Spielende</button></div>'}
+function toastHtml(){return '<div class="toast" role="status"><span>'+esc(S.toast.txt)+'</span>'+(S.toast.undo?'<button data-a="toastundo">Rückgängig</button>':'')+'</div>'}
+
+function streifen(){
+  const r=S.runde,nx=naechste();
+  const sl=(i,l,v)=>'<span class="sl'+(i===nx?' dran':'')+'"><small>'+l+'</small><b'+(v?'':' class="offen"')+'>'+(v?esc(v):i===nx?'nächste 5':'–')+'</b></span>';
+  return '<button class="streifen" data-a="fuenfblatt"'+(S.closed?' disabled':'')+' aria-label="Fünf eintragen"><span class="s5" aria-hidden="true">5</span><span class="sls">'+sl(0,'Schnaps',r.drink)+sl(1,'zahlt',r.zahlt)+sl(2,'trinkt',null)+'</span></button>';
+}
+function vStrafen(){
+  return (S.closed?'':streifen())+'<div class="grid'+(S.closed?' gesperrt':'')+'">'+
+  anwesend().map(p=>{const k=striche(p);return '<button class="kachel" data-a="person" data-p="'+esc(p)+'"><span class="kn">'+esc(p)+'</span><span class="ks">'+k+(k===1?' Strich':' Striche')+'</span><span class="kb">'+eur(summe(p))+'</span></button>'}).join('')+
+  (S.closed?'':'<button class="kachel plus" data-a="start">+ Weitere Person</button>')+'</div>'+
+  (S.closed?'':'<p class="hinweis">Name antippen, dann Vergehen. Lang drücken hält das Blatt für mehrere Striche offen.</p>');
+}
+function slots(){
+  const r=S.runde,nx=naechste();
+  return '<div class="slots">'+[['Schnaps',r.drink],['zahlt',r.zahlt],['trinkt',null]].map((x,i)=>'<div class="slot'+(i===nx?' dran':'')+(x[1]?' voll':'')+'"><small>'+(i+1)+'. '+x[0]+'</small><b>'+(x[1]?esc(x[1]):i===nx?'nächste 5':'')+'</b></div>').join('')+'</div>';
+}
+function vSchnaps(){
+  const fertig=[...S.runden].reverse();
+  let h='<h3>Laufende Runde</h3><section class="runde-akt">'+slots()+
+    '<button class="btn rot breit" data-a="fuenfblatt"'+(S.closed?' disabled':'')+'>5 eintragen</button></section>';
+  h+='<h3>Fertige Runden</h3>';
+  if(!fertig.length)return h+'<p class="leer-s">Noch keine fertige Runde. Drei Fünfen ergeben eine Runde.</p>';
+  h+='<div class="liste">'+fertig.map((x,i)=>'<button class="vz" data-a="runde" data-id="'+x.id+'"'+(S.closed?' disabled':'')+'><span><b>'+esc(x.drink||'Getränk nachtragen')+'</b><br><span class="pr">'+esc(x.zahlt)+' zahlt · '+esc(x.trinkt)+' trinkt</span></span><span class="pr">'+x.t+'</span></button>').join('')+'</div>';
+  return h+(S.closed?'':'<p class="hinweis">Fertige Runden bleiben, wie sie sind. Antippen, um das Getränk zu ändern oder eine Runde zu streichen.</p>');
+}
+function vZettel(){
+  const ps=anwesend(),L=live(),z=(p,f)=>L.filter(e=>e.p===p&&f(e)).length;
+  const row=(l,pr,cells,cls)=>'<tr'+(cls?' class="'+cls+'"':'')+'><th scope="row">'+l+(pr?'<small>'+pr+'</small>':'')+'</th>'+cells.map(c=>'<td>'+c+'</td>').join('')+'</tr>';
+  let h='<div class="zwrap"><table class="zettel"><thead><tr class="r1"><th class="ecke" scope="col">Vergehen</th>'+ps.map(p=>'<th scope="col"><button class="kopfbtn" data-a="person" data-p="'+esc(p)+'">'+esc(p)+'</button></th>').join('')+'</tr>';
+  h+='<tr class="r2"><th class="ecke" scope="row">Summe</th>'+ps.map(p=>'<td>'+eur(summe(p))+'</td>').join('')+'</tr></thead><tbody>';
+  h+=row('Großer Deckel','',ps.map(p=>S.deckel.has(p)?'ja':''),'klar');
+  h+=V.map(([v,c])=>row(esc(v),eur(c),ps.map(p=>tally(z(p,e=>e.type==='strich'&&e.v===v))))).join('');
+  h+=row('Sonderbeträge','',ps.map(p=>{const s=L.filter(e=>e.p===p&&e.type==='sonder').reduce((a,e)=>a+e.c,0);return s?eur(s):''}),'klar');
+  h+=[['sieg','Fußball: Sieg'],['tor','Fußball: Tor'],['vorlage','Fußball: Vorlage']].map(([t,l])=>row(l,'',ps.map(p=>tally(z(p,e=>e.type===t))),'fbz')).join('');
+  h+=row('Essen','',ps.map(p=>esc(S.essen[p]||'')),'klar');
+  return h+'</tbody></table></div><p class="hinweis">Namen antippen für die Einzelansicht. Seitlich wischen für weitere Personen.</p>';
+}
+
+function blatt(){
+  const p=S.sheet,L=live().filter(e=>e.p===p),zu=S.closed,rows=[];
+  V.forEach(([v,c])=>{const k=L.filter(e=>e.type==='strich'&&e.v===v).length;if(k)rows.push({l:v,n:k,b:k*c,a:'data-k="'+esc(v)+'"'})});
+  L.filter(e=>e.type==='sonder').forEach(e=>rows.push({l:'Sonderbetrag',n:1,b:e.c,a:'data-id="'+e.id+'"'}));
+  [['sieg','Fußball-Sieg'],['tor','Tor'],['vorlage','Vorlage']].forEach(([t,l])=>{const k=L.filter(e=>e.type===t).length;if(k)rows.push({l,n:k,b:null,a:'data-k="'+t+'"'})});
+  const heute=rows.length?'<ul class="hl'+(zu?' lesen':'')+'">'+rows.map(r=>'<li><span class="hn">'+r.n+'×</span><span>'+esc(r.l)+'</span><span class="hb">'+(r.b===null?'':eur(r.b))+'</span>'+(zu?'':'<button class="minus" data-a="minus" '+r.a+' aria-label="'+esc(r.l)+' bei '+esc(p)+' einmal entfernen">'+MINUS+'</button>')+'</li>').join('')+'</ul>':'<p class="leer-s">Heute noch nichts eingetragen.</p>';
+  const zeile=v=>'<button class="vz" data-a="strich" data-v="'+esc(v)+'"><span>'+esc(v)+'</span><span class="pr">'+eur(preis[v])+'</span></button>';
+  const taste=v=>'<button class="vt" data-a="strich" data-v="'+esc(v)+'"><span>'+esc(v)+'</span><span class="pr">'+eur(preis[v])+'</span></button>';
+  const letzte=S.letzte&&S.letzte.p===p?'<div class="letzte" role="status"><span>'+esc(S.letzte.txt)+'</span>'+(S.letzte.undo?'<button data-a="letzteundo">Rückgängig</button>':'')+'</div>':'';
+  const kopfteil='<div class="griff"><span class="henkel" aria-hidden="true"></span><div class="bk"><h2 class="titel" tabindex="-1" id="t-blatt">'+esc(p)+'</h2><span class="summe">'+eur(summe(p))+'</span></div>'+(S.sticky&&!zu?'<p class="modus">Blatt bleibt offen für mehrere Striche</p>':'')+letzte+'</div>';
+  const inhalt='<h3>Heute</h3>'+heute+(zu?'<p class="leise" style="margin-top:12px">Der Abend ist abgeschlossen. Zum Ändern im Banner „Wieder öffnen“ tippen.</p>':
+    '<h3>Weitere Vergehen</h3><div class="liste">'+WEITERE.map(zeile).join('')+'</div><h3>Sonst über Spielende</h3><div class="liste">'+SPIEL.map(zeile).join('')+'</div>');
+  const fuss=zu?'<button class="btn breit" data-a="zu">Schließen</button>':
+    (S.fb?'<div class="zwei"><button class="vt gruen" data-a="fb" data-t="tor">Tor</button><button class="vt gruen" data-a="fb" data-t="vorlage">Vorlage</button></div>':'')+
+    '<div class="zwei">'+HAEUFIG.map(taste).join('')+'</div>'+
+    '<div class="drei"><button class="btn" data-a="sonder">Sonderbetrag</button><button class="btn'+(S.sticky?' an':'')+'" data-a="sticky" aria-pressed="'+S.sticky+'">Offen lassen</button><button class="btn '+(S.sticky?'rot':'ghost')+'" data-a="zu">'+(S.sticky?'Fertig':'Schließen')+'</button></div>';
+  return '<div class="schleier" data-a="zu"></div><section class="ebene blatt'+(zu?' lesen':'')+(S.neu==='sheet'?' rein':'')+'" role="dialog" aria-modal="true" aria-labelledby="t-blatt"'+(S.ov?' inert':'')+'>'+kopfteil+'<div class="inhalt">'+inhalt+'</div><div class="fuss">'+fuss+'</div></section>';
+}
+
+function rahmen(titel,inhalt,fuss){return '<div class="schleier ov-s" data-a="ovzu"></div><section class="ebene ov'+(S.neu==='ov'?' rein':'')+'" role="dialog" aria-modal="true" aria-labelledby="t-ov"><div class="griff"><span class="henkel" aria-hidden="true"></span><h2 class="titel" tabindex="-1" id="t-ov">'+esc(titel)+'</h2></div><div class="inhalt">'+inhalt+'</div>'+(fuss?'<div class="fuss">'+fuss+'</div>':'')+'</section>'}
+function drinkWahl(z,akt){
+  return '<h3>Getränk</h3><div class="chips">'+S.drinks.map(d=>'<button class="chip'+(akt===d?' an':'')+'" data-a="drink" data-ziel="'+z+'" data-g="'+esc(d)+'" aria-pressed="'+(akt===d)+'">'+esc(d)+'</button>').join('')+'</div>'+
+  '<div class="zeile" style="margin-top:8px"><input id="neug" maxlength="30" placeholder="Anderes Getränk eintippen" autocomplete="off" aria-label="Anderes Getränk"><button class="btn" data-a="drinkfrei" data-ziel="'+z+'">Übernehmen</button></div>';
+}
+function overlay(){
+  const o=S.ov,ps=anwesend(),zwei=(a,b)=>'<div class="zwei">'+a+b+'</div>';
+  if(o.k==='menu'){
+    const mitEssen=ps.filter(p=>S.essen[p]).length;
+    const items=S.closed?
+      '<button class="vz" data-a="ergebnis"><span>Ergebnis und Export</span></button><button class="vz" data-a="auf"><span>Abend wieder öffnen</span></button>':
+      '<button class="vz" data-a="start"><span>Anwesenheit und Gäste</span><span class="pr">'+ps.length+' da</span></button><button class="vz" data-a="essen"><span>Essen</span><span class="pr">'+mitEssen+' von '+ps.length+'</span></button><button class="vz" data-a="ab"><span>Abend abschließen</span></button>';
+    return rahmen('Menü','<div class="liste">'+items+'</div><div class="gefahr"><button class="vz" data-a="neu"><span class="rosatext">Neuen Abend beginnen</span>'+(S.closed?'':'<span class="pr">verwirft diesen Abend</span>')+'</button></div>','<button class="btn breit" data-a="ovzu">Schließen</button>');
+  }
+  if(o.k==='start'){
+    const zeilen=S.people.map(p=>{const da=S.present.has(p),dk=S.deckel.has(p),gast=S.gaeste.has(p);
+      return '<div class="zeile"><button class="chip gross'+(da?' an':'')+'" data-a="anw" data-p="'+esc(p)+'" aria-pressed="'+da+'">'+esc(p)+'</button><button class="chip deckel'+(dk?' an':'')+'" data-a="deckel" data-p="'+esc(p)+'" aria-pressed="'+dk+'"'+(da?'':' disabled')+'>Großer Deckel</button>'+(gast&&!hatEintraege(p)?'<button class="chip" data-a="gastweg" data-p="'+esc(p)+'">Entfernen</button>':'')+'</div>'}).join('');
+    return rahmen(o.neu?'Neuer Abend':'Anwesenheit und Gäste','<p class="leise" style="margin-bottom:12px">Anwesende antippen. Nur sie erscheinen als Kacheln. Den Großen Deckel gibt es nur für Anwesende.</p>'+zeilen+
+      '<h3>Gast hinzufügen</h3><div class="zeile"><input id="gast" maxlength="20" placeholder="Name des Gastes" autocomplete="off" aria-label="Name des Gastes"><button class="btn" data-a="gast">Hinzufügen</button></div>',
+      '<button class="btn rot breit" data-a="ovzu">'+(o.neu?'Los':'Fertig')+'</button>');
+  }
+  if(o.k==='confirm')return rahmen(o.titel,(o.betrag!=null?'<div class="betrag">'+eur(o.betrag)+'</div>':'')+(o.text?'<p style="margin-top:8px">'+esc(o.text)+'</p>':''),zwei('<button class="btn ghost" data-a="ovzu">Abbrechen</button>','<button class="btn rot" data-a="ja">'+esc(o.ok)+'</button>'));
+  if(o.k==='fuenf'){
+    const r=S.runde,nx=naechste();
+    if(nx===0||o.drinkNeu)return rahmen(nx===0?'Erste 5: Welcher Schnaps?':'Schnaps ändern',slots()+drinkWahl('aktuell',r.drink),
+      '<button class="btn ghost breit" data-a="'+(nx===0?'ovzu':'drinkzurueck')+'">'+(nx===0?'Schließen':'Zurück')+'</button>');
+    return rahmen(nx===1?'Zweite 5: Wer zahlt?':'Dritte 5: Wer trinkt?',slots()+
+      '<div class="zeile" style="margin-top:12px"><span>Schnaps: <b>'+esc(r.drink)+'</b></span><button class="lnk" style="margin:0 0 0 auto" data-a="drinkaendern">Schnaps ändern</button></div><button class="lnk" style="margin-top:0" data-a="fuenfweg">Letzte 5 zurücknehmen</button>',
+      '<div class="pgrid">'+ps.map(p=>'<button class="pk" data-a="fuenf" data-p="'+esc(p)+'">'+esc(p)+'</button>').join('')+'</div><button class="btn ghost breit" data-a="ovzu">Schließen</button>');
+  }
+  if(o.k==='runde'){
+    const x=S.runden.find(r=>r.id===o.id);if(!x)return '';
+    return rahmen('Schnaps-Runde '+x.t,'<p>'+esc(x.zahlt)+' zahlt, '+esc(x.trinkt)+' trinkt.</p>'+drinkWahl(String(x.id),x.drink),
+      zwei('<button class="btn ghost" data-a="rundeweg" data-id="'+x.id+'">Runde streichen</button>','<button class="btn rot" data-a="ovzu">Fertig</button>'));
+  }
+  if(o.k==='sonder')return rahmen('Sonderbetrag für '+o.p,'<p class="leise">Jeder Tipp addiert.</p><div class="betrag" style="margin:8px 0 12px">'+eur(o.c)+'</div><div class="chips">'+SCHNELL.map(c=>'<button class="chip" data-a="plus" data-c="'+c+'">+ '+eur(c)+'</button>').join('')+'<button class="chip" data-a="null0">Auf 0</button></div>',
+    zwei('<button class="btn ghost" data-a="ovzu">Abbrechen</button>','<button class="btn rot" data-a="sonderok"'+(o.c?'':' disabled')+'>'+(o.c?eur(o.c)+' buchen':'Betrag antippen')+'</button>'));
+  if(o.k==='ende'){
+    let h='<div class="seg">'+[['spiel','Spiel'],['fb','Fußball'],['einzel','Einzelwertung']].map(([v,l])=>'<button class="chip'+(o.art===v?' an':'')+'" data-a="art" data-v="'+v+'" aria-pressed="'+(o.art===v)+'">'+l+'</button>').join('')+'</div>';
+    if(o.art==='einzel'){
+      const t=ps.reduce((a,p)=>a+(o.b[p]||0),0);
+      h+='<p class="leise" style="margin-top:12px">Jeder Tipp addiert. „0“ setzt die Zeile zurück.</p>'+ps.map(p=>{const b=o.b[p]||0;return '<div class="ew"><div class="ew-n"><b>'+esc(p)+'</b><span'+(b?' class="kb"':'')+'>'+eur(b)+'</span></div><div class="ew-c">'+SCHNELL.map(c=>'<button class="chip" data-a="bp" data-p="'+esc(p)+'" data-c="'+c+'" aria-label="'+eur(c)+' für '+esc(p)+'">+'+kurz(c)+'</button>').join('')+'<button class="chip c0" data-a="b0" data-p="'+esc(p)+'" aria-label="Betrag für '+esc(p)+' zurücksetzen">0</button></div></div>'}).join('');
+      return rahmen('Spielende',h,'<div class="zwei weit-r"><button class="btn ghost" data-a="ovzu">Abbrechen</button><button class="btn rot" data-a="endeok"'+(t?'':' disabled')+'>'+(t?'Buchen · '+eur(t):'Beträge antippen')+'</button></div>');
+    }
+    const v=o.art==='spiel'?'verlorenes Spiel':o.nul?'Fussball zu Null':'Fussball verloren';
+    h+='<h3>Verlierer · je '+eur(preis[v])+'</h3><div class="chips">'+ps.map(p=>'<button class="chip'+(o.sel.has(p)?' an':'')+'" data-a="sel" data-p="'+esc(p)+'" aria-pressed="'+o.sel.has(p)+'">'+esc(p)+'</button>').join('')+'</div>';
+    if(o.art==='fb'){
+      h+='<div class="chips" style="margin-top:8px"><button class="chip'+(o.nul?' an':'')+'" data-a="nul" aria-pressed="'+o.nul+'">Zu Null: 10,00 € statt 5,00 €</button></div>';
+      h+='<h3>Sieger · Vorschlag, abwählbar</h3><div class="chips">'+ps.filter(p=>!o.sel.has(p)).map(p=>'<button class="chip sieg'+(o.nos.has(p)?'':' an')+'" data-a="nos" data-p="'+esc(p)+'" aria-pressed="'+!o.nos.has(p)+'">'+esc(p)+'</button>').join('')+'</div>';
+    }
+    if(S.fb)h+='<button class="lnk" data-a="fbaus">Fußballspiel ohne Wertung beenden</button>';
+    const k=o.sel.size;
+    return rahmen('Spielende',h,'<div class="zwei weit-r"><button class="btn ghost" data-a="ovzu">Abbrechen</button><button class="btn rot" data-a="endeok"'+(k?'':' disabled')+'>'+(k?k+' Verlierer buchen':'Verlierer antippen')+'</button></div>');
+  }
+  if(o.k==='essen')return rahmen('Essen','<div class="liste">'+ps.map(p=>'<button class="vz" data-a="essenp" data-p="'+esc(p)+'"><span>'+esc(p)+'</span><span class="pr">'+esc(S.essen[p]||'offen')+'</span></button>').join('')+'</div>',
+    o.from==='ab'?'<button class="btn rot breit" data-a="ab">Zurück zum Abschluss</button>':'<button class="btn breit" data-a="ovzu">Fertig</button>');
+  if(o.k==='essenEdit'){const g=[...new Set(Object.values(S.essen))];return rahmen('Essen: '+o.p,'<input id="gericht" value="'+esc(S.essen[o.p]||'')+'" maxlength="40" placeholder="Gericht" autocomplete="off" aria-label="Gericht">'+(g.length?'<h3>Schon bestellt</h3><div class="chips">'+g.map(x=>'<button class="chip" data-a="gericht" data-g="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div>':''),
+    zwei('<button class="btn ghost" data-a="essen">Zurück</button>','<button class="btn rot" data-a="essenok">Speichern</button>'))}
+  if(o.k==='ab'){
+    const fehlt=ps.filter(p=>!S.essen[p]),r=S.runde,ang=(r.drink?1:0)+(r.zahlt?1:0),ohne=S.runden.filter(x=>!x.drink).length;
+    let h='<h3>Lückenprüfung</h3><ul class="pruef">';
+    if(fehlt.length)h+='<li class="warn"><span>Essen fehlt bei '+esc(fehlt.join(', '))+'</span><button class="btn" data-a="essen" data-from="ab">Eintragen</button></li>';
+    if(ohne)h+='<li class="warn"><span>'+ohne+(ohne>1?' Schnaps-Runden':' Schnaps-Runde')+' ohne Getränk</span><button class="btn" data-a="zuschnaps">Ansehen</button></li>';
+    if(S.fb)h+='<li class="warn"><span>Fußballspiel läuft noch</span><button class="btn" data-a="fbaus">Ohne Wertung beenden</button></li>';
+    if(ang)h+='<li><span>Angefangene Schnaps-Runde ('+ang+' von 3 Fünfen) verfällt beim Abschluss</span></li>';
+    if(!fehlt.length&&!ohne&&!S.fb&&!ang)h+='<li class="ok"><span>Keine Lücken</span></li>';
+    const ges=ps.reduce((a,p)=>a+summe(p),0);
+    h+='</ul><h3>Strafen pro Person</h3><table class="summen">'+ps.map(p=>'<tr><td>'+esc(p)+'</td><td>'+eur(summe(p))+'</td></tr>').join('')+'<tr class="ges"><td>Gesamt</td><td>'+eur(ges)+'</td></tr></table>';
+    return rahmen('Abend abschließen',h,'<div class="zwei weit-r"><button class="btn ghost" data-a="ovzu">Abbrechen</button><button class="btn rot" data-a="abok">Abschließen</button></div>');
+  }
+  if(o.k==='fertig'){
+    const sorted=[...ps].sort((a,b)=>summe(b)-summe(a)),ges=ps.reduce((a,p)=>a+summe(p),0);
+    let h='<div class="gesamt"><small>Strafen gesamt</small><div class="betrag">'+eur(ges)+'</div><small>'+ps.length+' Anwesende · '+S.runden.length+(S.runden.length===1?' Schnaps-Runde':' Schnaps-Runden')+'</small></div>';
+    h+='<table class="summen">'+sorted.map(p=>'<tr><td>'+esc(p)+'</td><td>'+eur(summe(p))+'</td></tr>').join('')+'</table>';
+    h+='<h3>Für die Kasse</h3><button class="btn rot breit" data-a="kopie" data-id="code">'+(S.kopiert==='code'?'Code kopiert':'Code für die Kasse kopieren')+'</button><details'+(S.kopierFehler==='code'?' open':'')+'><summary>Code anzeigen (Beispiel)</summary><textarea id="code" readonly aria-label="Code für die Kasse">'+esc(code())+'</textarea></details>';
+    h+='<h3>Für die Gruppe</h3><button class="btn breit" data-a="kopie" data-id="zus">'+(S.kopiert==='zus'?'Zusammenfassung kopiert':'Zusammenfassung kopieren')+'</button><details'+(S.kopierFehler==='zus'?' open':'')+'><summary>Zusammenfassung anzeigen</summary><textarea id="zus" class="text" readonly aria-label="Zusammenfassung">'+esc(zusammen())+'</textarea></details>';
+    if(S.kopierFehler)h+='<p class="hinweis-f">Kopieren ist hier nicht möglich. Den Text im Feld markieren und von Hand kopieren.</p>';
+    h+='<p class="leise" style="margin-top:12px">In der fertigen App kommt „Als Datei teilen“ dazu.</p>';
+    return rahmen('Abend abgeschlossen',h,'<button class="btn breit" data-a="ovzu">Fertig</button>');
+  }
+  return '';
+}
+function code(){
+  const ps=anwesend(),L=live(),cnt={};
+  L.filter(e=>e.type==='strich').forEach(e=>{const k=e.p+'|'+e.v;cnt[k]=(cnt[k]||0)+1});
+  const o={m:'2026-11',a:ps,d:ps.filter(p=>S.deckel.has(p)),s:Object.entries(cnt).map(([k,c])=>[...k.split('|'),c]),g:L.filter(e=>e.type==='sonder').map(e=>[e.p,e.c]),f:ps.map(p=>[p,...['sieg','tor','vorlage'].map(t=>L.filter(e=>e.type===t&&e.p===p).length)]).filter(r=>r[1]+r[2]+r[3]>0),sn:S.runden.map(r=>[r.drink||'',r.zahlt,r.trinkt]),e:S.essen};
+  const b=btoa(unescape(encodeURIComponent(JSON.stringify(o))));let c=0;for(const ch of b)c=(c*31+ch.charCodeAt(0))%65536;
+  return 'KCSB1.'+b+'.'+c.toString(16).padStart(4,'0');
+}
+function zusammen(){
+  const ps=[...anwesend()].sort((a,b)=>summe(b)-summe(a));
+  let t='KCSB · Kegelabend November 2026\n\nStrafen:\n'+ps.map(p=>p+': '+eur(summe(p))).join('\n')+'\nGesamt: '+eur(ps.reduce((a,p)=>a+summe(p),0));
+  if(S.runden.length)t+='\n\nSchnaps:\n'+S.runden.map(x=>(x.drink||'?')+' · zahlt '+x.zahlt+' · trinkt '+x.trinkt).join('\n');
+  return t;
+}
+
+const tog=(s,p)=>{s.has(p)?s.delete(p):s.add(p)};
+const JA={
+  buche:d=>buche(d.p,d.v),
+  neu:()=>{const h=hist;S=leer();oeffneOv({k:'start',neu:true});hist=h},
+  rundeweg:d=>{const i=S.runden.findIndex(r=>r.id===d.id);if(i<0)return;const snap=schnapsSnap();S.runden.splice(i,1);toast('Schnaps-Runde gestrichen',[{typ:'schnaps',snap}])}
+};
+const A={
+  view:d=>{S.view=d.v},
+  menu:()=>oeffneOv({k:'menu'}),
+  ovzu:()=>{S.ov=null},
+  zu:()=>{S.sheet=null;S.sticky=false;S.letzte=null},
+  person:d=>oeffneSheet(d.p,false),
+  sticky:()=>{S.sticky=!S.sticky},
+  strich:d=>{if(S.closed)return;const p=S.sheet;if(preis[d.v]>=500){oeffneOv({k:'confirm',titel:p+': '+d.v+'?',betrag:preis[d.v],ok:eur(preis[d.v])+' buchen',aktion:'buche',daten:{p,v:d.v}});return}buche(p,d.v)},
+  ja:()=>{const o=S.ov;S.ov=null;JA[o.aktion](o.daten||{})},
+  fb:d=>{const p=S.sheet,e=add({type:d.t,p});vib(30);gebucht(p,d.t==='tor'?'Tor':'Vorlage',[e.id])},
+  minus:d=>{
+    const p=S.sheet,fb=['tor','vorlage','sieg'];let e;
+    if(d.id)e=S.ev.find(x=>x.id===+d.id&&!x.del);
+    else e=[...live()].reverse().find(x=>x.p===p&&(fb.includes(d.k)?x.type===d.k:x.type==='strich'&&x.v===d.k));
+    if(!e)return;e.del=true;vib(20);S.letzte={p,txt:name(e)+' entfernt',undo:[{typ:'undel',ids:[e.id]}]};ansage(p+' · '+name(e)+' entfernt');
+  },
+  letzteundo:()=>{const l=S.letzte;rueck(l.undo);S.letzte={p:l.p,txt:'Rückgängig gemacht',undo:null};ansage('Rückgängig gemacht')},
+  toastundo:()=>{const t=S.toast;S.toast=null;clearTimeout(tt);if(t)rueck(t.undo);toast('Rückgängig gemacht')},
+  fuenfblatt:()=>{if(!S.closed)oeffneOv({k:'fuenf'})},
+  fuenf:d=>{
+    const snap=schnapsSnap(),r=S.runde,p=d.p;if(!r.drink)return;let txt;
+    if(!r.zahlt){r.zahlt=p;txt=p+' · 5 · zahlt den Schnaps ('+r.drink+')'}
+    else{S.runden.push({id:++n,zahlt:r.zahlt,trinkt:p,drink:r.drink,t:zeit()});txt='Runde fertig: '+r.drink+' · '+r.zahlt+' zahlt · '+p+' trinkt';S.runde={drink:'',zahlt:null}}
+    S.ov=null;vib(30);toast(txt,[{typ:'schnaps',snap}]);
+  },
+  fuenfweg:()=>{const r=S.runde;if(r.zahlt)r.zahlt=null;else r.drink=''},
+  drinkaendern:()=>{S.ov.drinkNeu=true},
+  drinkzurueck:()=>{S.ov.drinkNeu=false},
+  drink:d=>{
+    if(d.ziel==='aktuell'){
+      const r=S.runde;
+      if(!r.drink){const snap=schnapsSnap();r.drink=d.g;S.ov=null;vib(30);toast('5 · Schnaps: '+d.g+' · nächste 5 zahlt',[{typ:'schnaps',snap}]);return}
+      r.drink=d.g;if(S.ov)S.ov.drinkNeu=false;return;
+    }
+    const z=ziel(d.ziel);if(z)z.drink=d.g;
+  },
+  drinkfrei:d=>{
+    const inp=$('#neug'),v=inp?inp.value.trim():'';if(!v){if(inp)inp.focus();return 'nr'}
+    let g=S.drinks.find(x=>x.toLowerCase()===v.toLowerCase());if(!g){S.drinks.push(v);g=v}
+    return A.drink({ziel:d.ziel,g});
+  },
+  runde:d=>{if(!S.closed)oeffneOv({k:'runde',id:+d.id})},
+  rundeweg:d=>oeffneOv({k:'confirm',titel:'Runde streichen?',text:'Die Runde verschwindet aus der Schnaps-Liste. Andere Runden bleiben, wie sie sind.',ok:'Runde streichen',aktion:'rundeweg',daten:{id:+d.id}}),
+  sonder:()=>oeffneOv({k:'sonder',p:S.sheet,c:0}),
+  plus:d=>{S.ov.c+=+d.c},
+  null0:()=>{S.ov.c=0},
+  sonderok:()=>{const o=S.ov;S.ov=null;if(o.c>0){const e=add({type:'sonder',p:o.p,c:o.c});vib(30);gebucht(o.p,'Sonderbetrag · '+eur(o.c),[e.id])}},
+  fbstart:()=>{if(S.closed)return;S.fb=true;toast('Fußball läuft. Tor und Vorlage stehen jetzt unten im Blatt.',[{typ:'fb',wert:false}])},
+  fbaus:()=>{S.fb=false;if(S.ov&&S.ov.k==='ende'){S.ov=null;toast('Fußballspiel ohne Wertung beendet',[{typ:'fb',wert:true}])}},
+  ende:()=>{if(!S.closed)oeffneOv({k:'ende',art:S.fb?'fb':'spiel',sel:new Set(),nul:false,nos:new Set(),b:{}})},
+  art:d=>{S.ov.art=d.v},
+  sel:d=>tog(S.ov.sel,d.p),
+  nos:d=>tog(S.ov.nos,d.p),
+  nul:()=>{S.ov.nul=!S.ov.nul},
+  bp:d=>{S.ov.b[d.p]=(S.ov.b[d.p]||0)+ +d.c},
+  b0:d=>{S.ov.b[d.p]=0},
+  endeok:()=>{
+    const o=S.ov,ids=[],ps=anwesend(),warFb=S.fb;let txt;
+    if(o.art==='einzel'){
+      ps.forEach(p=>{if(o.b[p]>0)ids.push(add({type:'sonder',p,c:o.b[p]}).id)});
+      if(!ids.length)return;txt='Einzelwertung · '+ids.length+(ids.length===1?' Person':' Personen')+' gebucht';
+    }else{
+      if(!o.sel.size)return;
+      const v=o.art==='spiel'?'verlorenes Spiel':o.nul?'Fussball zu Null':'Fussball verloren';
+      o.sel.forEach(p=>ids.push(add({type:'strich',p,v,c:preis[v]}).id));
+      if(o.art==='fb'){ps.forEach(p=>{if(!o.sel.has(p)&&!o.nos.has(p))ids.push(add({type:'sieg',p}).id)});S.fb=false}
+      txt=v+' · '+o.sel.size+' Verlierer · je '+eur(preis[v]);
+    }
+    S.ov=null;vib([30,60,30]);toast(txt,[{typ:'del',ids},{typ:'fb',wert:warFb}]);
+  },
+  start:()=>oeffneOv({k:'start'}),
+  anw:d=>{tog(S.present,d.p);if(!S.present.has(d.p))S.deckel.delete(d.p)},
+  deckel:d=>{if(S.present.has(d.p))tog(S.deckel,d.p)},
+  gast:()=>{const inp=$('#gast'),v=inp?inp.value.trim():'';if(!v){if(inp)inp.focus();return 'nr'}if(!S.people.some(x=>x.toLowerCase()===v.toLowerCase())){S.people.push(v);S.gaeste.add(v);S.present.add(v)}},
+  gastweg:d=>{if(hatEintraege(d.p))return;S.people=S.people.filter(x=>x!==d.p);S.gaeste.delete(d.p);S.present.delete(d.p);S.deckel.delete(d.p)},
+  essen:d=>oeffneOv({k:'essen',from:d.from||(S.ov&&S.ov.from)||''}),
+  essenp:d=>oeffneOv({k:'essenEdit',p:d.p,from:S.ov.from}),
+  gericht:d=>{const i=$('#gericht');if(i)i.value=d.g;return 'nr'},
+  essenok:()=>{const i=$('#gericht'),v=i?i.value.trim():'',o=S.ov;if(v)S.essen[o.p]=v;else delete S.essen[o.p];oeffneOv({k:'essen',from:o.from})},
+  ab:()=>oeffneOv({k:'ab'}),
+  abok:()=>{S.closed=true;S.fb=false;S.sheet=null;S.sticky=false;S.letzte=null;S.runde={drink:'',zahlt:null};oeffneOv({k:'fertig'})},
+  ergebnis:()=>oeffneOv({k:'fertig'}),
+  auf:()=>{S.closed=false;S.ov=null;toast('Abend wieder geöffnet. Beim nächsten Abschluss entsteht ein neuer Code.')},
+  zuschnaps:()=>{S.ov=null;S.view='schnaps'},
+  kopie:d=>{
+    const el=$('#'+d.id),t=el?el.value:'';
+    const ok=()=>{S.kopiert=d.id;S.kopierFehler=null;render()},nein=()=>{S.kopierFehler=d.id;render()};
+    try{navigator.clipboard.writeText(t).then(ok,nein)}catch(e){nein()}
+    return 'nr';
+  },
+  neu:()=>{if(S.closed){JA.neu();return}const k=live().length;oeffneOv({k:'confirm',titel:'Diesen Abend verwerfen?',text:'Der Abend ist nicht abgeschlossen und nicht exportiert. '+k+(k===1?' Eintrag geht':' Einträge gehen')+' verloren.',ok:'Verwerfen',aktion:'neu'})}
+};
+
+document.addEventListener('click',ev=>{
+  const el=ev.target.closest('[data-a]');if(!el||el.disabled)return;
+  if(lp){lp=false;return}
+  const f=A[el.dataset.a];if(!f)return;
+  if(f(el.dataset)!=='nr')render();
+});
+document.addEventListener('pointerdown',ev=>{
+  lp=false;
+  const g=ev.target.closest('.griff');
+  if(g){const el=g.closest('.ebene');drag={el,y:ev.clientY,dy:0,id:ev.pointerId};el.classList.remove('zurueck');try{g.setPointerCapture(ev.pointerId)}catch(e){}return}
+  const k=ev.target.closest('.kachel[data-a="person"]');if(!k)return;
+  const p=k.dataset.p;clearTimeout(lpT);
+  lpT=setTimeout(()=>{lp=true;oeffneSheet(p,!S.closed);vib(50);render()},500);
+});
+document.addEventListener('pointermove',ev=>{
+  if(drag&&ev.pointerId===drag.id){drag.dy=Math.max(0,ev.clientY-drag.y);drag.el.style.transform='translateY('+drag.dy+'px)';return}
+  if(Math.abs(ev.movementX)+Math.abs(ev.movementY)>6)clearTimeout(lpT);
+});
+function dragEnde(abbruch){
+  const d=drag;drag=null;if(!d)return;
+  if(!abbruch&&d.dy>90){if(d.el.classList.contains('ov'))S.ov=null;else{S.sheet=null;S.sticky=false;S.letzte=null}render()}
+  else{d.el.classList.add('zurueck');d.el.style.transform=''}
+}
+document.addEventListener('pointerup',()=>{clearTimeout(lpT);dragEnde(false)});
+document.addEventListener('pointercancel',()=>{clearTimeout(lpT);dragEnde(true)});
+window.addEventListener('blur',()=>{clearTimeout(lpT);dragEnde(true)});
+document.addEventListener('contextmenu',ev=>{if(ev.target.closest('.kachel'))ev.preventDefault()});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&(S.ov||S.sheet)){schliesseOben();render()}});
+window.addEventListener('popstate',()=>{if(!hist)return;hist=0;if(S.ov||S.sheet){schliesseOben();render()}});
+
+// Beispielabend, damit der Dummy in einem realistischen Zustand startet
+S=leer();
+['Ulf','Kim','Niggel','Chris C','CV','Benno','Hahn','Reidi','Kuhni'].forEach(p=>S.present.add(p));
+['Ulf','Kim','Benno','Hahn'].forEach(p=>S.deckel.add(p));
+[['Benno','Pudel'],['Ulf','Pudel'],['Kim','Gasse'],['Benno','Pudel'],['CV','Königsmord'],['Hahn','Pudel'],['Reidi','Alle 9'],['Benno','Pudel'],['Hahn','Pudel'],['Kuhni','Kackstuhl'],['Chris C','Pudel'],['Benno','Pudel'],['Benno','Pudel'],['Niggel','Glockenläuten']].forEach((x,i)=>{
+  add({type:'strich',p:x[0],v:x[1],c:preis[x[1]]},'20:'+String(4+i*3).padStart(2,'0'));
+});
+S.runden=[{id:++n,zahlt:'Ulf',trinkt:'Niggel',drink:'Korn',t:'20:28'}];
+S.runde={drink:'Ouzo',zahlt:null};
+S.essen={Ulf:'Schnitzel',Kim:'Schnitzel',Benno:'Currywurst'};
+render();
+</script>
+</body>
+</html>
