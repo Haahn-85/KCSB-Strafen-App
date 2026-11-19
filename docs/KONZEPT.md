@@ -26,7 +26,7 @@ Jeder Bildschirm folgt diesen Regeln, abgeleitet aus der Situation am Kegeltisch
 | --- | --- |
 | Daumenzone | Alles Häufige liegt unten: Hauptleiste, Aktionsleiste, in jedem Blatt der feste untere Teil mit den häufigen Strafen bzw. Personen. Oben stehen nur Anzeige und Menü |
 | Große Trefferflächen | Kacheln 88 px hoch, Vergehen-Tasten mindestens 56 px, alle Ziele mindestens 44 px, 8 px Abstand |
-| Ortsfestigkeit | Kacheln und Tasten wechseln am Abend nie ihren Platz. Reihenfolge wie auf dem Zettel |
+| Ortsfestigkeit | Kacheln und Tasten wechseln am Abend nie ihren Platz. Reihenfolge wie auf dem Zettel. Einzige Ausnahme: Während eines Fußballspiels stehen Tor und Vorlage auf dem Tablet fest oben (Matrix) bzw. vorne (Kacheln) |
 | Wiedererkennen statt Merken | Zettel-Ansicht mit Strichbündeln wie auf Papier; Vergehen heißen exakt wie im Katalog |
 | Sofortige Rückmeldung | Jeder Strich: kurze Vibration, Zähler und Betrag auf der Kachel ändern sich, Hinweisleiste mit Name, Vergehen, Betrag und „Rückgängig“ |
 | Fehler verzeihen statt verhindern | Keine Rückfragen bei kleinen Strafen; Korrektur jederzeit im Personenblatt. Rückfrage nur ab 5 € |
@@ -71,6 +71,8 @@ Schließen: nach unten wischen, Zurück-Geste, Esc oder Tipp über das Blatt.
 2. Vergehen antippen. Der Strich ist gesetzt, das Blatt schließt sich, die Hinweisleiste zeigt „Benno · Pudel · 0,25 €“ mit „Rückgängig“ (5 Sekunden).
 
 Ab 5 € fragt die App einmal nach, mit Person und Vergehen im Titel („CV: Handy laut?“) und dem Betrag groß. Mehrere Striche für eine Person: Kachel lang drücken oder im Blatt „Offen lassen“; dann bleibt das Blatt offen und der Kopf zeigt die letzte Aktion.
+
+Bei „Alle 9“ und „Kranz Hand“ zahlt der Werfer nicht: Alle anderen Anwesenden, auch Gäste, bekommen je einen Strich. Erfasst wird mit denselben zwei Tipps (Werfer, Vergehen); wer geworfen hat, wird nicht gespeichert. Die Hinweisleiste zeigt „Benno · Alle 9 · 11 andere je 1,00 €“; „Rückgängig“ nimmt die ganze Buchung zurück. Neben dem Preis steht „alle anderen“.
 
 ### Fußball
 

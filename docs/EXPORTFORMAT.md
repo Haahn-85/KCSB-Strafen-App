@@ -80,7 +80,7 @@ KCSB1.<Daten>.<Prüfsumme>
 | `spalten` | eine Spalte pro anwesender Person, Mitglieder und Gäste, in Zettel-Reihenfolge. Abwesende fehlen. |
 | `name` | Kurzname exakt wie in `stammdaten.json` bzw. der Kasse; bei Gästen der eingegebene Name |
 | `grosser_deckel` | Schalter „Großer Deckel“ beim Abendstart |
-| `striche` | pro Vergehen die Zahl der nicht entfernten Striche, einschließlich der Buchungen über „Spielende“. Vergehen ohne Strich fehlen. Name exakt wie im Katalog. |
+| `striche` | pro Vergehen die Zahl der nicht entfernten Striche, einschließlich der Buchungen über „Spielende“. Bei „Alle 9“ und „Kranz Hand“ stehen die Striche bei allen anderen Anwesenden, nicht beim Werfer. Vergehen ohne Strich fehlen. Name exakt wie im Katalog. |
 | `geldbetraege` | Sonderbeträge (Personenblatt und Einzelwertung), nach Betrag gruppiert. `betrag` als Text in deutscher Schreibweise wie in der Erkennung, gebildet aus ganzen Cent, nie aus einer Kommazahl. |
 | `essen` | Freitext, leer wenn nichts eingetragen |
 | `siege`, `tore`, `vorlagen` | Gab es am Abend Fußball (eine Fußball-Wertung oder ein Tor bzw. eine Vorlage), dann Zahlen für alle Anwesenden, auch `0`. Sonst `null`. So bekommen Abwesende in der Kasse richtig den kleinsten Wert der Anwesenden. |

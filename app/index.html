@@ -198,7 +198,10 @@ details summary{min-height:44px;display:flex;align-items:center;color:var(--leis
 .zettel small{display:block;color:var(--leise);font-variant-numeric:tabular-nums;font-weight:500}
 .zettel thead th,.zettel thead td{position:sticky;z-index:2}
 .zettel .r1 th{top:0;height:46px;background:#000;padding:0}
-.zettel .r2 th,.zettel .r2 td{top:46px;background:var(--flaeche2);font-family:var(--lauf);font-size:14px;letter-spacing:0;font-weight:600;font-variant-numeric:tabular-nums;color:var(--rosa)}
+.zettel .fbk th,.zettel .fbk td{top:80px;height:48px;padding:0;background:var(--gruen-tief)}
+.zettel .fbk+.fbk th,.zettel .fbk+.fbk td{top:128px}
+.zettel .fbk th{left:0;z-index:3;text-align:left;padding:0 8px;font-weight:500;color:var(--gruen)}
+.zettel .r2 th,.zettel .r2 td{height:34px;padding-top:0;padding-bottom:0;top:46px;background:var(--flaeche2);font-family:var(--lauf);font-size:14px;letter-spacing:0;font-weight:600;font-variant-numeric:tabular-nums;color:var(--rosa)}
 .zettel tbody th{position:sticky;left:0;z-index:1;background:var(--flaeche);text-align:left;font-weight:500;min-width:136px}
 .zettel .ecke{position:sticky;left:0;z-index:3;text-align:left;min-width:136px}
 .zettel .r1 .ecke{padding:0 8px;color:var(--leise);font-weight:500;background:#000}
@@ -241,6 +244,9 @@ let M,V,HAEUFIG,SPIEL,WEITERE,SCHNELL,preis,RUECKFRAGE;
 const KEY='kcsb.abend',ARCHIV='kcsb.archiv';
 const DATEN=['datum','people','gaeste','present','deckel','ev','runde','runden','drinks','fb','essen','closed'];
 let speicherFehler=false,wl=null;
+// Clubregel: Bei diesen Vergehen zahlt der Werfer nicht, sondern alle anderen Anwesenden je einen Strich
+const ANDERE_ZAHLEN=['Alle 9','Kranz Hand'];
+const prText=v=>eur(preis[v])+(ANDERE_ZAHLEN.includes(v)?' · alle anderen':'');
 const MINUS='<svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M4.5 10h11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -300,7 +306,11 @@ function gebucht(p,txt,ids){
   if(S.sheet===p&&S.sticky){S.letzte={p,txt,undo};ansage(p+' · '+txt)}
   else{if(S.sheet===p){S.sheet=null;S.letzte=null}toast(p+' · '+txt,undo)}
 }
-function buche(p,v){const e=add({type:'strich',p,v,c:preis[v]});vib(30);gebucht(p,v+' · '+eur(e.c),[e.id])}
+function buche(p,v){
+  if(!ANDERE_ZAHLEN.includes(v)){const e=add({type:'strich',p,v,c:preis[v]});vib(30);gebucht(p,v+' · '+eur(e.c),[e.id]);return}
+  const ids=anwesend().filter(x=>x!==p).map(x=>add({type:'strich',p:x,v,c:preis[v]}).id);
+  vib([30,60,30]);gebucht(p,v+' · '+ids.length+' andere je '+eur(preis[v]),ids);
+}
 function ziel(z){return z==='aktuell'?S.runde:S.runden.find(r=>r.id===+z)}
 
 function render(){
@@ -371,11 +381,14 @@ function vZettel(t){
   const row=(l,pr,cells,cls)=>'<tr'+(cls?' class="'+cls+'"':'')+'><th scope="row">'+l+(pr?'<small>'+pr+'</small>':'')+'</th>'+cells.map(c=>'<td>'+c+'</td>').join('')+'</tr>';
   const zelle=(p,k,x)=>t?'<button class="z" data-a="zelle" data-p="'+esc(p)+'" data-k="'+esc(k)+'" aria-label="'+esc(titel(k)+', '+p)+'">'+x+'</button>':x;
   let h='<div class="zwrap"><table class="zettel'+(t?' tipp':'')+'"><thead><tr class="r1"><th class="ecke" scope="col">Vergehen</th>'+ps.map(p=>'<th scope="col"><button class="kopfbtn" data-a="person" data-p="'+esc(p)+'">'+esc(p)+'</button></th>').join('')+'</tr>';
-  h+='<tr class="r2"><th class="ecke" scope="row">Summe</th>'+ps.map(p=>'<td>'+eur(summe(p))+'</td>').join('')+'</tr></thead><tbody>';
+  // Während eines Fußballspiels stehen Tor und Vorlage fest oben im Kopf (Tablet), sonst unten
+  const fb=([k,l],cls)=>row(l,'',ps.map(p=>{const x=tally(z(p,e=>e.type===k));return k==='sieg'||!S.fb?x:zelle(p,k,x)}),'fbz'+cls);
+  const TV=[['tor','Fußball: Tor'],['vorlage','Fußball: Vorlage']],oben=t&&S.fb;
+  h+='<tr class="r2"><th class="ecke" scope="row">Summe</th>'+ps.map(p=>'<td>'+eur(summe(p))+'</td>').join('')+'</tr>'+(oben?TV.map(x=>fb(x,' fbk')).join(''):'')+'</thead><tbody>';
   h+=row('Großer Deckel','',ps.map(p=>S.deckel.has(p)?'ja':''),'klar');
-  h+=V.map(([v,c])=>row(esc(v),eur(c),ps.map(p=>zelle(p,v,tally(z(p,e=>e.type==='strich'&&e.v===v)))))).join('');
+  h+=V.map(([v])=>row(esc(v),prText(v),ps.map(p=>zelle(p,v,tally(z(p,e=>e.type==='strich'&&e.v===v)))))).join('');
   h+=row('Sonderbeträge','',ps.map(p=>{const s=L.filter(e=>e.p===p&&e.type==='sonder').reduce((a,e)=>a+e.c,0);return zelle(p,'sonder',s?eur(s):'')}),'klar');
-  h+=[['sieg','Fußball: Sieg'],['tor','Fußball: Tor'],['vorlage','Fußball: Vorlage']].map(([k,l])=>row(l,'',ps.map(p=>{const x=tally(z(p,e=>e.type===k));return k==='sieg'||!S.fb?x:zelle(p,k,x)}),'fbz')).join('');
+  h+=[['sieg','Fußball: Sieg'],...(oben?[]:TV)].map(x=>fb(x,'')).join('');
   h+=row('Essen','',ps.map(p=>zelle(p,'essen',esc(S.essen[p]||''))),'klar');
   const hin=!t?'Namen antippen für die Einzelansicht. Seitlich wischen für weitere Personen.':S.korr?'Korrigieren: Der nächste Tipp entfernt dort einen Eintrag.':'Tipp in eine Zelle setzt einen Strich. Namen antippen für die Einzelansicht.';
   return h+'</tbody></table></div><p class="hinweis'+(S.korr?' rosatext':'')+'">'+hin+'</p>';
@@ -384,8 +397,7 @@ function vKacheln(){
   const P=S.selP,n=k=>P?live().filter(e=>e.p===P&&passt(k,e)).length:0;
   const vt=(k,pr,cls)=>'<button class="vt'+(cls||'')+(S.selV===k?' an':'')+'" data-a="selv" data-k="'+esc(k)+'" aria-pressed="'+(S.selV===k)+'"><span>'+esc(titel(k))+'</span><span class="pr">'+pr+(n(k)?' · '+n(k)+'×':'')+'</span></button>';
   return '<div class="tk"><section><h3>Person</h3><div class="pg">'+anwesend().map(p=>'<button class="kachel'+(P===p?' an':'')+'" data-a="selp" data-p="'+esc(p)+'" aria-pressed="'+(P===p)+'"><span class="kn">'+esc(p)+'</span><span class="kb">'+eur(summe(p))+'</span></button>').join('')+
-    '</div></section><section><h3>'+(P?'Vergehen für '+esc(P):S.selV?'Jetzt Person wählen':'Vergehen')+'</h3><div class="vg">'+V.map(([v,c])=>vt(v,eur(c))).join('')+vt('sonder','frei')+
-    (S.fb?vt('tor','Fußball',' gruen')+vt('vorlage','Fußball',' gruen'):'')+vt('essen',P&&S.essen[P]?esc(S.essen[P]):'Freitext')+'</div></section></div>'+
+    '</div></section><section><h3>'+(P?'Vergehen für '+esc(P):S.selV?'Jetzt Person wählen':'Vergehen')+'</h3><div class="vg">'+(S.fb?vt('tor','Fußball',' gruen')+vt('vorlage','Fußball',' gruen'):'')+V.map(([v])=>vt(v,prText(v))).join('')+vt('sonder','frei')+vt('essen',P&&S.essen[P]?esc(S.essen[P]):'Freitext')+'</div></section></div>'+
     '<p class="hinweis'+(S.korr?' rosatext':'')+'">'+(S.korr?'Korrigieren: Person und Vergehen antippen, dort wird ein Eintrag entfernt.':'Person und Vergehen antippen, Reihenfolge egal.')+'</p>';
 }
 const titel=k=>({sonder:'Sonderbetrag',tor:'Tor',vorlage:'Vorlage',essen:'Essen'}[k]||k);
@@ -411,8 +423,8 @@ function blatt(){
   L.filter(e=>e.type==='sonder').forEach(e=>rows.push({l:'Sonderbetrag',n:1,b:e.c,a:'data-id="'+e.id+'"'}));
   [['sieg','Fußball-Sieg'],['tor','Tor'],['vorlage','Vorlage']].forEach(([t,l])=>{const k=L.filter(e=>e.type===t).length;if(k)rows.push({l,n:k,b:null,a:'data-k="'+t+'"'})});
   const heute=rows.length?'<ul class="hl'+(zu?' lesen':'')+'">'+rows.map(r=>'<li><span class="hn">'+r.n+'×</span><span>'+esc(r.l)+'</span><span class="hb">'+(r.b===null?'':eur(r.b))+'</span>'+(zu?'':'<button class="minus" data-a="minus" '+r.a+' aria-label="'+esc(r.l)+' bei '+esc(p)+' einmal entfernen">'+MINUS+'</button>')+'</li>').join('')+'</ul>':'<p class="leer-s">Heute noch nichts eingetragen.</p>';
-  const zeile=v=>'<button class="vz" data-a="strich" data-v="'+esc(v)+'"><span>'+esc(v)+'</span><span class="pr">'+eur(preis[v])+'</span></button>';
-  const taste=v=>'<button class="vt" data-a="strich" data-v="'+esc(v)+'"><span>'+esc(v)+'</span><span class="pr">'+eur(preis[v])+'</span></button>';
+  const zeile=v=>'<button class="vz" data-a="strich" data-v="'+esc(v)+'"><span>'+esc(v)+'</span><span class="pr">'+prText(v)+'</span></button>';
+  const taste=v=>'<button class="vt" data-a="strich" data-v="'+esc(v)+'"><span>'+esc(v)+'</span><span class="pr">'+prText(v)+'</span></button>';
   const letzte=S.letzte&&S.letzte.p===p?'<div class="letzte" role="status"><span>'+esc(S.letzte.txt)+'</span>'+(S.letzte.undo?'<button data-a="letzteundo">Rückgängig</button>':'')+'</div>':'';
   const kopfteil='<div class="griff"><span class="henkel" aria-hidden="true"></span><div class="bk"><h2 class="titel" tabindex="-1" id="t-blatt">'+esc(p)+'</h2><span class="summe">'+eur(summe(p))+'</span></div>'+(S.sticky&&!zu?'<p class="modus">Blatt bleibt offen für mehrere Striche</p>':'')+letzte+'</div>';
   const inhalt='<h3>Heute</h3>'+heute+(zu?'<p class="leise" style="margin-top:12px">Der Abend ist abgeschlossen. Zum Ändern im Banner „Wieder öffnen“ tippen.</p>':

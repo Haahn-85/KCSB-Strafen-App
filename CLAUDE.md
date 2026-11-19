@@ -30,6 +30,7 @@ Handy-App, mit der der Schriftführer des KC Spritney Biers (KCSB) am Kegelabend
 - **5er-Schnaps:** Die erste 5 legt nur das Getränk fest; wer sie geworfen hat, wird nicht erfasst. Die zweite 5 bestimmt, wer zahlt, die dritte, wer trinkt. Dieselbe Person darf zahlen und trinken. Fertige Runden werden als eigene Einträge gespeichert und verschieben sich nie rückwirkend. Ein angefangener Zyklus verfällt beim Abschluss.
 - **Spielende:** „verlorenes Spiel“ 1,50 € je Verlierer. Beim Fußball 5,00 € je Verlierer; „zu Null“ ersetzt das durch 10,00 €. Alle übrigen Anwesenden bekommen einen Sieg, abwählbar. Einzelwertung bucht frei addierte Beträge pro Person als Sonderbetrag (Schnelltasten 0,25 €, 0,50 €, 1 €, 2 €).
 - **Rückfrage** nur bei Vergehen ab 5,00 €.
+- **Alle 9 und Kranz Hand:** Der Werfer wird angetippt, zahlt aber nicht. Alle anderen Anwesenden, auch Gäste, bekommen je einen Strich; der Werfer wird nicht gespeichert. Die Kasse rechnet nur Striche × Preis je Person, deshalb müssen die Striche bei den Zahlenden stehen.
 - **Abschluss** sperrt den Abend. „Neuer Abend“ verwirft einen nicht abgeschlossenen Abend nur nach Rückfrage.
 - Die App führt nur Strafensummen. Grundgebühr, Aufteilung der Rechnung und Zahlungen bleiben in der Kasse.
 

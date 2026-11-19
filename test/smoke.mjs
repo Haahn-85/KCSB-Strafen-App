@@ -42,6 +42,7 @@ try {
   assert.deepEqual(await js(`[...document.querySelectorAll('[data-a="anw"]')].map(b => b.dataset.p)`),
     ['Ulf', 'Kim', 'Niggel', 'Chris C', 'CV', 'Benno', 'Wenzel', 'Hahn', 'Reidi', 'Kuhni', 'Lomme', 'Winnie']);
   await klick('[data-a="anw"][data-p="Benno"]');
+  await klick('[data-a="anw"][data-p="Kim"]');
   await klick('.fuss [data-a="ovzu"]');
   await klick('.kachel[data-p="Benno"]');
   await klick('[data-a="strich"][data-v="Pudel"]');
@@ -60,6 +61,20 @@ try {
   await klick('[data-a="selv"][data-k="Gasse"]');
   await klick('[data-a="selp"][data-p="Benno"]');
   assert.match(await js(`document.querySelector('[data-a="selp"][data-p="Benno"]').textContent`), /0,75/);
+
+  // Alle 9: Benno wirft, Kim zahlt
+  await klick('[data-a="tview"][data-v="zettel"]');
+  await klick('.z[data-p="Benno"][data-k="Alle 9"]');
+  assert.deepEqual(await js(`['Benno','Kim'].map(p => document.querySelector('.z[data-p="'+p+'"][data-k="Alle 9"]').textContent)`), ['', '|']);
+
+  // Fußball: Tor und Vorlage fest oben, auch nach dem Scrollen direkt unter der Summe
+  await klick('[data-a="fbstart"]');
+  assert.equal(await js(`!!document.querySelector('thead .z[data-k="tor"]') && !document.querySelector('tbody .z[data-k="tor"]')`), true);
+  assert.equal(await js(`(() => { document.querySelector('.zwrap').scrollTop = 9999;
+    const [s, t, v] = ['.r2 td', '.fbk td', '.fbk + .fbk td'].map(q => document.querySelector(q).getBoundingClientRect());
+    return Math.abs(s.bottom - t.top) < 1.5 && Math.abs(t.bottom - v.top) < 1.5; })()`), true);
+  await klick('[data-a="tview"][data-v="kacheln"]');
+  assert.equal(await js(`document.querySelector('.vg .vt').dataset.k`), 'tor');
   await cdp('Emulation.clearDeviceMetricsOverride');
   await bis(() => js(benno), 'zurück zur Handy-Ansicht');
   await js('navigator.serviceWorker.ready.then(() => true)');
@@ -70,7 +85,7 @@ try {
   assert.equal(await js('!!navigator.serviceWorker.controller'), true);
   assert.equal(await js(`document.fonts.ready.then(() => document.fonts.check('600 24px "Barlow Condensed"'))`), true);
   assert.deepEqual(fehler, []);
-  console.log('ok: Reihenfolge, Strich, iPad quer (Zelle, Korrigieren, Kacheln), Speichern, Neustart offline mit Schriften');
+  console.log('ok: Reihenfolge, Strich, iPad quer (Zelle, Korrigieren, Kacheln, Alle 9, Fußball oben), Speichern, Neustart offline mit Schriften');
   ws.close();
 } finally {
   server.kill();
