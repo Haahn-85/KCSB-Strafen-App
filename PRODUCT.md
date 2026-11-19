@@ -50,7 +50,7 @@ Die App ist auf die Regeln genau dieses Clubs gebaut, nicht auf Kegelstrafen im 
 - Export: ein Code mit allen Daten des Abends und Prüfsumme, angezeigt als QR-Code für ein Bildschirmfoto und als Text zum Teilen, dazu eine lesbare Zusammenfassung für die Club-Gruppe. Eine eigene Datei gibt es nicht. Der Weg zur Kasse läuft per Mail an den eigenen Rechner, der keine Kamera hat; das Bildschirmfoto wird dort mit den Belegen hochgeladen. Ein reiner Hash-Wert reicht nicht, weil er keine Daten enthält.
 - Sprache: nur Deutsch.
 - Eigenes Projekt, getrennt von der KCSB-Kasse. Gemeinsam sind nur Namen, Vergehen und Preise. Im Kassen-Projekt wird nichts angelegt.
-- Offene Entscheidungen: genaues Format von Code und Prüfsumme, festzulegen zusammen mit dem Import in der Kasse. Vorschlag in `docs/EXPORTFORMAT.md`.
+- Format von Code und Prüfsumme: festgelegt zusammen mit dem Import in der Kasse (dort `SPEC.md` 7.1), Felder in `docs/EXPORTFORMAT.md`.
 
 ## Brand Commitments
 

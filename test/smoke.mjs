@@ -1,10 +1,12 @@
 // Rauchtest der App: node test/smoke.mjs
 // Startet einen lokalen Server und Headless-Chromium, legt einen Abend an, setzt einen Strich,
-// beendet den Server und prüft, dass die App offline mit dem Strich wieder startet.
+// beendet den Server und prüft, dass die App offline mit dem Strich wieder startet und den Export erzeugt.
 import { spawn } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
+import { gunzipSync } from 'node:zlib';
 import assert from 'node:assert/strict';
 
 const wurzel = new URL('..', import.meta.url).pathname;
@@ -84,8 +86,21 @@ try {
   assert.match(await bis(() => js(benno), 'Neustart offline'), /2 Striche.*0,75/);
   assert.equal(await js('!!navigator.serviceWorker.controller'), true);
   assert.equal(await js(`document.fonts.ready.then(() => document.fonts.check('600 24px "Barlow Condensed"'))`), true);
+
+  // Export offline: Abschluss zeigt QR-Code und Code im Format der Kasse (SPEC 7.1)
+  await klick('[data-a="menu"]');
+  await klick('[data-a="ab"]');
+  await klick('[data-a="abok"]');
+  const code = await bis(() => js(`document.querySelector('#code')?.value`), 'Exportcode');
+  assert.equal(await js(`!!document.querySelector('.qr svg path')`), true);
+  const [kennung, teil, pruefsumme] = code.split('.');
+  assert.equal(kennung, 'KCSB1');
+  assert.equal(createHash('sha256').update(teil).digest('hex').slice(0, 8), pruefsumme);
+  const d = JSON.parse(gunzipSync(Buffer.from(teil, 'base64url')));
+  assert.deepEqual(d.strafenzettel.spalten.map(s => [s.name, s.striche.map(x => x.vergehen + ' ' + x.anzahl).join(', '), s.siege]),
+    [['Kim', 'Alle 9 1', null], ['Benno', 'Pudel 1, Gasse 1', null]]);
   assert.deepEqual(fehler, []);
-  console.log('ok: Reihenfolge, Strich, iPad quer (Zelle, Korrigieren, Kacheln, Alle 9, Fußball oben), Speichern, Neustart offline mit Schriften');
+  console.log('ok: Reihenfolge, Strich, iPad quer (Zelle, Korrigieren, Kacheln, Alle 9, Fußball oben), Speichern, Neustart offline mit Schriften, Export');
   ws.close();
 } finally {
   server.kill();

@@ -1,6 +1,6 @@
 # Exportformat Strafen-App → KCSB-Kasse
 
-**Stand 18.11.2026.** Entschieden ist der Weg in die Kasse (QR-Code als Bildschirmfoto, Text als Ersatz, keine Datei). Alles Übrige ist ein Vorschlag und wird in einer Sitzung im Projekt KCSB-Kasse festgelegt, zusammen mit dem Import. Bis dahin baut die Strafen-App keinen Export.
+**Festgelegt am 18.11.2026** in der KCSB-Kasse (`SPEC.md` 7.1), dort ist der Import gebaut (`src/kcsb_kasse/erkennung/strafen_app.py`, `belege.py`). Die Kasse verweist für die Felder auf dieses Dokument. Die Strafen-App erzeugt den Code seit 19.11.2026 (`exportDaten` und `machCode` in `app/index.html`). Änderungen am Format nur in beiden Projekten zugleich, sonst mit neuer Kennung `KCSB2`.
 
 ## Weg vom Kegeltisch in die Kasse
 
@@ -11,7 +11,7 @@ Die Kasse läuft auf einem Rechner ohne Kamera. Vom iPad bzw. Handy kommt der Ab
 
 Eine eigene Datei zum Teilen gibt es nicht; das Bildschirmfoto übernimmt ihre Rolle (entschieden am 18.11.2026).
 
-## Idee für den Import
+## Grundidee
 
 Die Kasse liest Strafenzettel und Schnaps-Liste heute per Bilderkennung ein. Das Ergebnis sind zwei feste JSON-Schemas: `Strafenzettel` und `Schnapsliste` in `src/kcsb_kasse/erkennung/modelle.py`. Danach prüft der Kassenwart in der Prüfansicht und übernimmt mit „In den Abend übernehmen“.
 
@@ -31,11 +31,13 @@ KCSB1.<Daten>.<Prüfsumme>
 
 **Größe:** Gerechnet für einen großen Abend mit 14 Personen, je 7 verschiedenen Vergehen, Sonderbeträgen, Essen, Fußball und 15 Schnaps-Runden. Ohne Packung sind das 10,8 KB JSON und ein Code mit rund 14.500 Zeichen, zu viel für einen QR-Code. Mit gzip sind es rund 1.450 Zeichen, also ein QR-Code der Version 31 bis 32 (bis 145 × 145 Punkte).
 
-**Probelauf** (18.11.2026): Ein Code dieser Länge wurde als QR-Code erzeugt und mit `zxing-cpp` aus einem Bild in iPad-Bildschirmgröße zurückgelesen. Das klappte fehlerfrei bei 3, 5 und 8 Pixeln je Punkt, also auch, wenn der Code auf dem Bildschirm nur 450 Pixel breit ist. Die ganze Kette lief ebenfalls durch: Code wie im Browser gepackt, als QR-Code ins Bild, zurückgelesen und mit `lies_code` unten entpackt; das JSON kam unverändert an, mit Umlauten und Anführungszeichen.
+**Probelauf** (18.11.2026): Ein Code dieser Länge wurde als QR-Code erzeugt und mit `zxing-cpp` aus einem Bild in iPad-Bildschirmgröße zurückgelesen. Das klappte fehlerfrei bei 3, 5 und 8 Pixeln je Punkt, also auch, wenn der Code auf dem Bildschirm nur 450 Pixel breit ist.
+
+**Probe mit der fertigen App** (19.11.2026): Großer Abend mit 14 Personen, Fußball, Essen mit Umlauten und Anführungszeichen, 15 Runden; Code 1.302 Zeichen, QR-Code 137 × 137 Punkte. Bildschirmfotos in Handy-Größe (1170 × 2532) und iPad-Größe (1640 × 2360) las die Kasse mit `code_im_bild`, `lies_code` und `auswerten` fehlerfrei; das JSON kam unverändert an. Auch auf 640 Pixel lange Kante verkleinert und als JPEG gespeichert blieb der Code lesbar.
 
 **Werkzeuge**
 
-- **App:** `CompressionStream('gzip')`, `crypto.subtle` und `TextEncoder` sind im Browser eingebaut. Für den QR-Code gibt es keine Browser-Funktion; dafür kommt eine kleine MIT-lizenzierte Bibliothek als einzelne Datei in `app/`, ohne npm, damit sie offline mitläuft.
+- **App:** `CompressionStream('gzip')`, `crypto.subtle` und `TextEncoder` sind im Browser eingebaut (Safari ab 16.4). Den QR-Code zeichnet `app/qrcode.js` (qrcode-generator 2.0.4 von Kazuhiko Arase, MIT, unverändert übernommen, kein npm); der Service Worker hält die Datei offline vor. Fehlerkorrektur Stufe M, Größe automatisch, Ausgabe als SVG schwarz auf weiß mit Ruhezone. „Code als Text teilen“ teilt nur den Code, ohne Titel, weil manche Apps den Titel vor den Text setzen.
 - **Kasse:** `gzip`, `base64` und `hashlib` aus der Standardbibliothek. Zum Lesen des QR-Codes aus dem Bild neu: `zxing-cpp`. Pillow ist schon da.
 
 ## Inhalt (JSON)
@@ -90,7 +92,9 @@ KCSB1.<Daten>.<Prüfsumme>
 
 **Nicht im Export:** die angefangene Schnaps-Runde (verfällt), wer die erste 5 geworfen hat, Uhrzeiten und einzelne Einträge, entfernte Einträge, Abwesende. Die Rechnung kennt die App nicht.
 
-## Lesen in der Kasse (Vorschlag)
+## Lesen in der Kasse
+
+Umgesetzt in `erkennung/strafen_app.py` der Kasse, im Kern so:
 
 ```python
 import base64, gzip, hashlib, json
@@ -109,15 +113,12 @@ def lies_code(text: str) -> dict:
 
 Aus einem Bild: `zxingcpp.read_barcodes(bild)` liefert die Texte aller QR-Codes; ein Text, der mit `KCSB` beginnt, geht in `lies_code`. Danach `Strafenzettel.model_validate(d["strafenzettel"])` und `Schnapsliste.model_validate(d["schnapsliste"])`. Wegen `extra="forbid"` fällt jede Abweichung im Format sofort auf.
 
-## Einbau in der Kasse (Vorschlag)
+## Einbau in der Kasse
 
-1. **Beim Hochladen der Belege** prüft die Kasse jedes Bild zuerst auf einen QR-Code der Strafen-App. Wird einer gefunden, liest sie ihn, statt das Bild an die Bilderkennung zu schicken. Das ist exakt und kostet keinen Erkennungsaufruf. Alle anderen Bilder, etwa die Rechnung, laufen wie bisher.
-2. Zusätzlich ein Feld „Code der Strafen-App einfügen“ für den Ersatzweg per Text.
-3. Passt der Monat von `datum` nicht zum Abend, warnen.
-4. Aus dem Code zwei Belege anlegen, Typ `strafenzettel_neu` und `schnapsliste`. `ergebnis` ist das jeweilige JSON, Status `erkannt`, `erkannt_mit` „Strafen-App“. Ab hier laufen Prüfansicht und „In den Abend übernehmen“ unverändert, mit `neuer_zettel=True`. Den Strafenzettel vor der Schnaps-Liste übernehmen, damit Gäste als Zahler gefunden werden.
+Umgesetzt wie in `SPEC.md` 7.1 der Kasse: Beim Hochladen prüft die Kasse jedes Bild zuerst auf diesen QR-Code und liest ihn statt der Bilderkennung; der Text-Code lässt sich im Reiter Belege einfügen. Aus einem Code entstehen zwei Belege (Strafenzettel neu, Schnaps-Liste) mit Status „erkannt“. Erst den Strafenzettel übernehmen, dann die Schnaps-Liste. Passt der Monat von `datum` nicht zum Abend, steht ein Hinweis am Strafenzettel.
 
-## Offen, gemeinsam zu entscheiden
+## Entschieden (18.11.2026, Kasse SPEC 7.1)
 
-- **Gäste mit Strichen:** Die Kasse ignoriert Striche von Gästen und meldet das jeweils als Hinweis. Soll die App sie trotzdem exportieren (vollständig, aber mit Hinweisen) oder bei Gästen nur Anwesenheit und Essen?
-- **Prüfansicht:** Soll der Kassenwart App-Daten wie Erkennungsdaten erst prüfen, oder reicht bei gültiger Prüfsumme die direkte Übernahme? Der Vorschlag oben behält die Prüfung bei, weil das ohne neuen Code geht.
+- **Gäste mit Strichen:** Die App exportiert sie vollständig. Die Kasse ignoriert Striche von Gästen und meldet das als Hinweis; „Großer Deckel“ bei einem Gast setzt dort „beim großen Deckel mitrechnen“.
+- **Prüfansicht bleibt Pflicht**, auch bei gültiger Prüfsumme.
 - **Neue Abhängigkeit in der Kasse:** `zxing-cpp` zum Lesen des QR-Codes.

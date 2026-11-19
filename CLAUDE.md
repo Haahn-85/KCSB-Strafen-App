@@ -14,7 +14,8 @@ Handy-App, mit der der Schriftführer des KC Spritney Biers (KCSB) am Kegelabend
 - Technik: PWA in `app/`, entstanden aus dem Handy-Klickdummy. HTML und JavaScript ohne Framework, ohne Build-Schritt, ohne npm-Pakete. Offline über `app/sw.js`; Stammdaten lädt die App aus `daten/stammdaten.json`. Der Abend steht im `localStorage` und wird nach jeder Aktion gespeichert.
 - Auslieferung über GitHub Pages aus dem Hauptverzeichnis; die App liegt unter `/app/`.
 - Erster Test am Kegeltisch auf einem iPad (Safari/Chrome). Hochkant zeigt die App die Handy-Ansicht, quer ab 1000 px Breite die Tablet-Ansicht mit Zettel-Matrix und Kacheln (umschaltbar) und der Schnaps-Leiste rechts.
-- Rauchtest: `node test/smoke.mjs` (braucht `chromium` und `python3`). Prüft Anwesenheit, Strich, die Queransicht (Zelle, Korrigieren, Kacheln), Speichern und den Neustart ohne Netz.
+- Rauchtest: `node test/smoke.mjs` (braucht `chromium` und `python3`). Prüft Anwesenheit, Strich, die Queransicht (Zelle, Korrigieren, Kacheln), Speichern, den Neustart ohne Netz und den Export (Prüfsumme, Inhalt).
+- Export: Nach dem Abschluss zeigt die App den Code `KCSB1.<Daten>.<Prüfsumme>` als QR-Code und als Text. Format festgelegt in der KCSB-Kasse (`SPEC.md` 7.1), Felder in `docs/EXPORTFORMAT.md`; der Import dort ist gebaut. Der QR-Code kommt aus `app/qrcode.js` (fremde MIT-Bibliothek, nicht bearbeiten).
 
 ## Regeln für die Arbeit
 
@@ -36,7 +37,6 @@ Handy-App, mit der der Schriftführer des KC Spritney Biers (KCSB) am Kegelabend
 
 ## Offene Punkte
 
-- Format von Exportcode und Prüfsumme, gemeinsam mit dem Import in der KCSB-Kasse festlegen. Vorschlag in `docs/EXPORTFORMAT.md`; entschieden ist nur der Weg: QR-Code als Bildschirmfoto, Text als Ersatz, keine Datei.
 - Welche Tablet-Ansicht bleibt: Zettel-Matrix oder Kacheln.
 
 ## Gestaltung

@@ -4,7 +4,7 @@ Strafen am Kegelabend direkt auf dem Handy erfassen statt auf dem Papierzettel. 
 
 ## Stand
 
-Die App entsteht als installierbare Web-App (PWA) in `app/`, die offline läuft. Grundlage ist der Handy-Klickdummy, ergänzt um Speichern, echte Stammdaten und Offline-Betrieb. Der Export für die Kasse fehlt noch, weil das Format erst mit der Kasse abgestimmt wird.
+Die App entsteht als installierbare Web-App (PWA) in `app/`, die offline läuft. Grundlage ist der Handy-Klickdummy, ergänzt um Speichern, echte Stammdaten und Offline-Betrieb. Nach dem Abschluss zeigt sie den Export für die Kasse als QR-Code und als Text.
 
 ## Inhalt
 
@@ -15,7 +15,7 @@ Die App entsteht als installierbare Web-App (PWA) in `app/`, die offline läuft.
 | `docs/KONZEPT.md` | Bildschirme und Abläufe, Stand der Klickdummys |
 | `docs/ENTSCHEIDUNGEN.md` | Alle bisherigen Entscheidungen mit Begründung |
 | `docs/KRITIK-2026-11-17.md` | Design-Bewertung des Handy-Klickdummys und was daraus umgesetzt wurde |
-| `docs/EXPORTFORMAT.md` | Export an die Kasse: Weg entschieden (QR-Code, Text), Format als Vorschlag |
+| `docs/EXPORTFORMAT.md` | Export an die Kasse: Weg, Format und Felder |
 | `klickdummy/index.html` | Klickdummy Handy (hochkant) |
 | `klickdummy/tablet.html` | Klickdummy Tablet (quer), zwei Ansichten |
 | `daten/stammdaten.json` | Mitglieder und Strafenkatalog wie in der KCSB-Kasse |
@@ -51,4 +51,4 @@ Veröffentlichte Fassungen zum Teilen:
 ## Nächste Schritte
 
 1. App auf dem iPad einen Kegelabend lang parallel zum Papier bedienen und Fehltipps notieren.
-2. Exportformat zusammen mit dem Import in der KCSB-Kasse festlegen.
+2. Einen echten Abend per Bildschirmfoto in die Kasse übernehmen und mit dem Papierzettel vergleichen.

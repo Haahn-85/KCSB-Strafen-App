@@ -189,6 +189,10 @@ details summary{min-height:44px;display:flex;align-items:center;color:var(--leis
 .summen td:last-child{text-align:right;font-weight:600}
 .summen tr.ges td{border-bottom:0;font-weight:700}
 .hinweis-f{background:#3d1419;border-radius:10px;padding:10px 12px;font-size:15px;margin-top:8px}
+/* QR-Code immer schwarz auf weiß und ganz auf dem Bildschirm, damit das Bildschirmfoto lesbar ist */
+.qr{background:#fff;color:#111;border-radius:12px;padding-bottom:10px;text-align:center;max-width:min(100%,62vh);margin:8px auto 12px}
+.qr svg{display:block;width:100%;height:auto;shape-rendering:crispEdges}
+.qr small{font-size:13px}
 
 .zwrap{flex:1;min-height:0;overflow:auto;border-radius:12px;border:1px solid var(--linie);overscroll-behavior:contain}
 .zettel{border-collapse:separate;border-spacing:0;font-size:14px;white-space:nowrap}
@@ -238,11 +242,12 @@ details summary{min-height:44px;display:flex;align-items:center;color:var(--leis
 <body>
 <div id="app"></div>
 <div id="live" class="sr" aria-live="polite"></div>
+<script src="qrcode.js"></script>
 <script>
 // Stammdaten kommen aus daten/stammdaten.json (wie in der KCSB-Kasse), siehe start() unten.
 let M,V,HAEUFIG,SPIEL,WEITERE,SCHNELL,preis,RUECKFRAGE;
 const KEY='kcsb.abend',ARCHIV='kcsb.archiv';
-const DATEN=['datum','people','gaeste','present','deckel','ev','runde','runden','drinks','fb','essen','closed'];
+const DATEN=['datum','erstellt','people','gaeste','present','deckel','ev','runde','runden','drinks','fb','essen','closed'];
 let speicherFehler=false,wl=null;
 // Clubregel: Bei diesen Vergehen zahlt der Werfer nicht, sondern alle anderen Anwesenden je einen Strich
 const ANDERE_ZAHLEN=['Alle 9','Kranz Hand'];
@@ -255,7 +260,7 @@ const kurz=c=>c%100?(c/100).toFixed(2).replace('.',','):String(c/100);
 let n=0,tt=null,lpT=null,lp=false,hist=0,histOk=true,drag=null,S;
 
 // Format sv-SE ist JJJJ-MM-TT in Ortszeit
-function leer(){return {datum:new Date().toLocaleDateString('sv-SE'),view:'strafen',people:[...M],gaeste:new Set(),present:new Set(),deckel:new Set(),ev:[],runde:{drink:'',zahlt:null},runden:[],drinks:['Korn','Ouzo','Sambuca','Jägermeister','Berliner Luft'],fb:false,essen:{},closed:false,sheet:null,sticky:false,letzte:null,ov:null,toast:null,fokus:false,neu:null,kopiert:null,kopierFehler:null,tview:'zettel',korr:false,selP:null,selV:null}}
+function leer(){return {datum:new Date().toLocaleDateString('sv-SE'),erstellt:'',code:null,view:'strafen',people:[...M],gaeste:new Set(),present:new Set(),deckel:new Set(),ev:[],runde:{drink:'',zahlt:null},runden:[],drinks:['Korn','Ouzo','Sambuca','Jägermeister','Berliner Luft'],fb:false,essen:{},closed:false,sheet:null,sticky:false,letzte:null,ov:null,toast:null,fokus:false,neu:null,kopiert:null,kopierFehler:null,tview:'zettel',korr:false,selP:null,selV:null}}
 function zeit(){return new Date().toTimeString().slice(0,5)}
 function add(e){e.id=++n;e.t=zeit();e.c=e.c||0;S.ev.push(e);return e}
 function speichern(){
@@ -510,9 +515,11 @@ function overlay(){
     const sorted=[...ps].sort((a,b)=>summe(b)-summe(a)),ges=ps.reduce((a,p)=>a+summe(p),0);
     let h='<div class="gesamt"><small>Strafen gesamt</small><div class="betrag">'+eur(ges)+'</div><small>'+ps.length+' Anwesende · '+S.runden.length+(S.runden.length===1?' Schnaps-Runde':' Schnaps-Runden')+'</small></div>';
     h+='<table class="summen">'+sorted.map(p=>'<tr><td>'+esc(p)+'</td><td>'+eur(summe(p))+'</td></tr>').join('')+'</table>';
+    h+='<h3>Für die Kasse</h3>'+(S.code===null?'<p class="leise">Code wird erstellt …</p>':!S.code?'<p class="hinweis-f">Der Code für die Kasse ließ sich auf diesem Gerät nicht erstellen. Der Abend bleibt gespeichert.</p>':
+      qrBlock()+'<p class="leise">Bildschirmfoto machen und in Originalgröße an den eigenen Rechner mailen, dann in der Kasse mit der Rechnung hochladen.</p>'+
+      '<button class="btn breit" data-a="teilen" style="margin-top:8px">'+(S.kopiert==='code'?'Code kopiert':'Code als Text teilen')+'</button><details'+(S.kopierFehler==='code'?' open':'')+'><summary>Code anzeigen</summary><textarea id="code" readonly aria-label="Code für die Kasse">'+esc(S.code)+'</textarea></details>');
     h+='<h3>Für die Gruppe</h3><button class="btn breit" data-a="kopie" data-id="zus">'+(S.kopiert==='zus'?'Zusammenfassung kopiert':'Zusammenfassung kopieren')+'</button><details'+(S.kopierFehler==='zus'?' open':'')+'><summary>Zusammenfassung anzeigen</summary><textarea id="zus" class="text" readonly aria-label="Zusammenfassung">'+esc(zusammen())+'</textarea></details>';
     if(S.kopierFehler)h+='<p class="hinweis-f">Kopieren ist hier nicht möglich. Den Text im Feld markieren und von Hand kopieren.</p>';
-    h+='<p class="leise" style="margin-top:12px">Der Export für die Kasse kommt, sobald das Format mit der Kasse abgestimmt ist.</p>';
     return rahmen('Abend abgeschlossen',h,'<button class="btn breit" data-a="ovzu">Fertig</button>');
   }
   return '';
@@ -522,6 +529,40 @@ function zusammen(){
   let t='KCSB · Kegelabend '+S.datum.split('-').reverse().join('.')+'\n\nStrafen:\n'+ps.map(p=>p+': '+eur(summe(p))).join('\n')+'\nGesamt: '+eur(ps.reduce((a,p)=>a+summe(p),0));
   if(S.runden.length)t+='\n\nSchnaps:\n'+S.runden.map(x=>(x.drink||'?')+' · zahlt '+x.zahlt+' · trinkt '+x.trinkt).join('\n');
   return t;
+}
+
+// Export für die Kasse, Format siehe docs/EXPORTFORMAT.md und SPEC 7.1 der KCSB-Kasse:
+// dieselben Schemas wie die Bilderkennung (Strafenzettel, Schnapsliste), nur alles sicher.
+const stempel=()=>new Date().toLocaleString('sv-SE').slice(0,16).replace(' ','T');
+const betragText=c=>Math.floor(c/100)+','+String(c%100).padStart(2,'0');
+const zaehlen=xs=>Object.entries(xs.reduce((a,k)=>(a[k]=(a[k]||0)+1,a),{}));
+function exportDaten(){
+  const L=live(),fussball=L.some(e=>['sieg','tor','vorlage'].includes(e.type)||e.v==='Fussball verloren'||e.v==='Fussball zu Null');
+  return {datum:S.datum,erstellt:S.erstellt,
+    strafenzettel:{monat:S.datum.slice(0,7),hinweise:[],spalten:anwesend().map(p=>{
+      const meine=L.filter(e=>e.p===p),fb=t=>fussball?meine.filter(e=>e.type===t).length:null;
+      return {name:p,anwesend:true,anwesend_sicher:true,grosser_deckel:S.deckel.has(p),
+        striche:zaehlen(meine.filter(e=>e.type==='strich').map(e=>e.v)).map(([vergehen,anzahl])=>({vergehen,anzahl,sicher:true})),
+        geldbetraege:zaehlen(meine.filter(e=>e.type==='sonder').map(e=>e.c)).map(([c,anzahl])=>({betrag:betragText(+c),anzahl,sicher:true})),
+        essen:S.essen[p]||'',essen_sicher:true,siege:fb('sieg'),tore:fb('tor'),vorlagen:fb('vorlage'),fussball_sicher:true};
+    })},
+    schnapsliste:{hinweise:[],zeilen:S.runden.map(r=>({getraenk:r.drink,zahlt:r.zahlt,trinkt:r.trinkt,durchgestrichen:false,sicher:true}))}};
+}
+// KCSB1.<JSON, gzip, Base64url ohne =>.<erste 8 Hex-Zeichen von SHA-256 über den Daten-Teil>
+async function machCode(){
+  const gz=new Uint8Array(await new Response(new Blob([JSON.stringify(exportDaten())]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
+  const teil=btoa(String.fromCharCode(...gz)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const h=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(teil)));
+  return 'KCSB1.'+teil+'.'+[...h.slice(0,4)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function qrBlock(){
+  try{const q=qrcode(0,'M');q.addData(S.code,'Byte');q.make();
+    return '<div class="qr">'+q.createSvgTag({cellSize:1,margin:4,scalable:true,title:'QR-Code für die Kasse'})+'<small>KCSB · Kegelabend '+S.datum.split('-').reverse().join('.')+' · erstellt '+S.erstellt.slice(11)+'</small></div>'}
+  catch(e){return '<p class="hinweis-f">Der QR-Code ließ sich nicht erzeugen. Bitte den Code als Text teilen.</p>'}
+}
+function zeigeErgebnis(){
+  S.erstellt=S.erstellt||stempel();S.code=null;oeffneOv({k:'fertig'});
+  machCode().then(c=>{S.code=c},()=>{S.code=''}).then(render);
 }
 
 const tog=(s,p)=>{s.has(p)?s.delete(p):s.add(p)};
@@ -616,8 +657,10 @@ const A={
   gericht:d=>{const i=$('#gericht');if(i)i.value=d.g;return 'nr'},
   essenok:()=>{const i=$('#gericht'),v=i?i.value.trim():'',o=S.ov;if(v)S.essen[o.p]=v;else delete S.essen[o.p];if(o.from==='zelle')S.ov=null;else oeffneOv({k:'essen',from:o.from})},
   ab:()=>oeffneOv({k:'ab'}),
-  abok:()=>{S.closed=true;S.fb=false;S.sheet=null;S.sticky=false;S.letzte=null;S.runde={drink:'',zahlt:null};oeffneOv({k:'fertig'})},
-  ergebnis:()=>oeffneOv({k:'fertig'}),
+  abok:()=>{S.closed=true;S.fb=false;S.sheet=null;S.sticky=false;S.letzte=null;S.runde={drink:'',zahlt:null};S.erstellt=stempel();zeigeErgebnis()},
+  ergebnis:()=>zeigeErgebnis(),
+  // ohne Titel: manche Apps setzen ihn vor den Text, dann liest die Kasse den Code nicht
+  teilen:()=>{if(navigator.share){navigator.share({text:S.code}).catch(()=>{});return 'nr'}return A.kopie({id:'code'})},
   auf:()=>{S.closed=false;S.ov=null;toast('Abend wieder geöffnet. Beim nächsten Abschluss entsteht ein neuer Code.')},
   zuschnaps:()=>{S.ov=null;S.view='schnaps'},
   kopie:d=>{

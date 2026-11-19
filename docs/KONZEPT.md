@@ -127,7 +127,7 @@ Einen eigenen Verlauf gibt es nicht; jeder Eintrag trägt intern weiter seine Uh
 | Textcode | Ersatzweg für den Import | „Code teilen“, per Mail an sich selbst, in der Kasse einfügen |
 | Lesbare Zusammenfassung | Club-Gruppe | „Zusammenfassung kopieren“: Strafen pro Person, Schnaps-Runden |
 
-Der Textcode enthält die vollständigen Daten des Abends und endet mit einer Prüfsumme, damit die Kasse abgeschnittene oder veränderte Codes erkennt. Eine eigene Datei gibt es nicht. Das genaue Format ist offen, Vorschlag in `docs/EXPORTFORMAT.md`. Wiederöffnen ist möglich; beim nächsten Abschluss entsteht ein neuer Code.
+Der Textcode enthält die vollständigen Daten des Abends und endet mit einer Prüfsumme, damit die Kasse abgeschnittene oder veränderte Codes erkennt. Eine eigene Datei gibt es nicht. Das Format steht in `docs/EXPORTFORMAT.md` und in der Kasse unter `SPEC.md` 7.1. Wiederöffnen ist möglich; beim nächsten Abschluss entsteht ein neuer Code.
 
 ## Tablet (Querformat)
 
@@ -163,13 +163,13 @@ Die App führt eigene Stammdaten (`daten/stammdaten.json`) und speichert jeden S
 | 0 | Klickdummys (erledigt) | Ja |
 | 1 | Abend starten, Einzelstrich, Personenblatt mit Korrektur, Zettel-Ansicht, Speichern | Für Schnaps, Essen, Fußball |
 | 2 | Spielende mit drei Arten, Fußball-Modus, Sonderbetrag, Essen | Für Schnaps |
-| 3 | 5er-Schnaps, Abschluss, Export als Code und Datei | Nein |
+| 3 | 5er-Schnaps, Abschluss, Export als QR-Code und Text | Nein |
 | 4 | Tablet-Ansicht, Import in der Kasse | Nein |
 
 Offen:
 
 - [x] **Technik:** installierbare Web-App (PWA), entschieden am 18.11.2026.
-- [ ] **Exportformat** und Prüfsumme, zusammen mit dem Import in der Kasse.
+- [x] **Exportformat** und Prüfsumme, festgelegt mit dem Import in der Kasse; Export in der App gebaut am 19.11.2026.
 - [x] **Abgleich** mit der Original-Strafenliste im Ordner „Grundlage“ der Kasse, erledigt am 18.11.2026.
 - [ ] **Tablet-Ansicht:** Zettel oder Kacheln.
 - [ ] **Test am Tisch:** Klickdummy einen Abend parallel zum Papier bedienen und Fehltipps zählen.
